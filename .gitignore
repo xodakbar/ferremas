@@ -1,0 +1,25 @@
+# Python
+*.pyc
+__pycache__/
+
+# Env files
+.env
+
+# Docker
+*.log
+*.pid
+*.sock
+*.db
+*.sqlite3
+mysql/
+
+# Django
+*.sqlite3
+/media
+/staticfiles
+
+# VSCode
+.vscode/
+
+# Others
+*.DS_Store
