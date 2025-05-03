@@ -1,17 +1,20 @@
 
-# Create your models here.
+# usuarios/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class Usuario(AbstractUser):
-    ROLES = [
+    ROLES = (
         ('cliente', 'Cliente'),
         ('vendedor', 'Vendedor'),
-        ('admin', 'Administrador'),
         ('bodeguero', 'Bodeguero'),
+        ('administrador', 'Administrador'),
         ('contador', 'Contador'),
-    ]
-    rol = models.CharField(max_length=20, choices=ROLES, default='cliente')
+    )
+    rol = models.CharField(max_length=20, choices=ROLES)
+
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
 
     def __str__(self):
-        return f"{self.username} ({self.rol})"
+        return f"{self.first_name} {self.last_name} ({self.rol})"

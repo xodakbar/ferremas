@@ -1,0 +1,31 @@
+{% load static %}
+<script src="{% static 'js/register.js' %}" defer></script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Usuario</title>
+    <!-- Vinculamos el archivo JS -->
+    <script src="{% static 'js/register.js' %}" defer></script>
+</head>
+<body>
+    <h2>Formulario de Registro de Usuario</h2>
+
+    <form id="registerForm">
+        <label for="first_name">Nombre:</label>
+        <input type="text" id="first_name" name="first_name" required><br><br>
+
+        <label for="last_name">Apellido:</label>
+        <input type="text" id="last_name" name="last_name" required><br><br>
+
+        <label for="email">Correo electrónico:</label>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <button type="submit">Registrar</button>
+    </form>
+</body>
+</html>
