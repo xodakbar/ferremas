@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from rest_framework.routers import DefaultRouter
-from productos.views import ProductoViewSet
+from productos.views import ProductoViewSet,productos_template
 from usuarios.views import UsuarioViewSet, register_user, home, login_view
 
 router = DefaultRouter()
@@ -31,4 +31,5 @@ urlpatterns = [
     path('', home, name='home'),  
     path('registro/', register_user, name='register_user'),
     path('login/', login_view, name='login'),
+    path('productos/', productos_template, name='productos_web'),
 ]
