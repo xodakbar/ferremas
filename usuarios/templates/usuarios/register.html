@@ -12,7 +12,8 @@
 <body>
     <h2>Formulario de Registro de Usuario</h2>
 
-    <form id="registerForm">
+    <form method="POST" action="{% url 'register_user' %}">
+        {% csrf_token %}
         <label for="first_name">Nombre:</label>
         <input type="text" id="first_name" name="first_name" required><br><br>
 

@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path,include
 from rest_framework.routers import DefaultRouter
 from productos.views import ProductoViewSet
-from usuarios.views import UsuarioViewSet, register_user, home
+from usuarios.views import UsuarioViewSet, register_user, home, login_view
 
 router = DefaultRouter()
 router.register(r'productos', ProductoViewSet)
@@ -30,5 +30,5 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('', home, name='home'),  
     path('registro/', register_user, name='register_user'),
-    
+    path('login/', login_view, name='login'),
 ]
