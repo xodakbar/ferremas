@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,11 +6,19 @@
 </head>
 <body>
     <h1>{% if producto %}Editar{% else %}Crear{% endif %} Producto</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
+    <form id="formulario-producto">
+        <label>Nombre: <input type="text" name="nombre" /></label><br>
+        <label>Descripción: <input type="text" name="descripcion" /></label><br>
+        <label>Precio: <input type="number" name="precio" /></label><br>
+        <label>Stock: <input type="number" name="stock" /></label><br>
+        <label>Categoría: <input type="text" name="categoria" /></label><br>
         <button type="submit">Guardar</button>
     </form>
+    
+    <ul id="lista-productos"></ul>
+    
     <a href="{% url 'listar_productos' %}">Volver a la lista</a>
+
+    <script src="{% static 'productos/productos.js' %}"></script>
 </body>
 </html>
