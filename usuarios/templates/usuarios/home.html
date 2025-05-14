@@ -1,34 +1,73 @@
-<!-- usuarios/templates/home.html -->
 {% load static %}
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Ferremas - Inicio</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <meta charset="UTF-8">
+  <title>Ferremas - Inicio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <header>
-        <h1>Ferremas</h1>
-        <p>Tu ferretería de confianza</p>
-    </header>
+<body class="bg-white text-gray-900">
 
-    <nav>
-        <ul>
-            <li><a href="/api/usuarios/">Usuarios</a></li>
-            <li><a href="/api/productos/">Productos</a></li>
-            <li><a href="/admin/">Panel Admin</a></li>
-        </ul>
-    </nav>
+<!-- Navbar (oscuro) -->
+<nav class="bg-gray-900 px-4 py-4 shadow-md">
+  <div class="container mx-auto flex items-center justify-between">
+    <a href="#" class="text-3xl font-bold text-white">Ferremas</a>
 
-    <main>
-        <h2>Bienvenido a Ferremas</h2>
-        <p>Gestiona tus productos, usuarios y pedidos desde esta plataforma web.</p>
-    </main>
+    <!-- Barra de búsqueda -->
+    <div class="hidden md:flex items-center bg-gray-800 rounded-full px-3 py-2 w-96">
+      <input type="text" placeholder="Buscar productos..." class="bg-transparent focus:outline-none text-base text-white placeholder-gray-400 w-full">
+    </div>
 
-    <footer>
-        <p>&copy; 2025 Ferremas - Todos los derechos reservados</p>
-    </footer>
+    <!-- Botones grandes -->
+    <div class="hidden md:flex space-x-4 ml-4">
+      <a href="/login/" class="bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-full text-base">Login</a>
+      <a href="/register/" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-full text-base">Registro</a>
+      
+      <!-- Carrito como ícono -->
+      <a href="/carrito/" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 p-3 rounded-full text-xl">
+        🛒
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section: Texto sin imágenes -->
+<section class="overflow-hidden bg-white py-16 sm:py-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="lg:grid lg:grid-cols-1 lg:gap-24 lg:items-center">
+      
+      <!-- Texto -->
+      <div>
+        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+          Tu ferretería de confianza
+        </h1>
+        <p class="mt-6 text-lg leading-8 text-gray-600">
+          En Ferremas encuentras todo lo que necesitas para construir, reparar y mejorar tu hogar o proyecto. Desde herramientas hasta materiales de alta calidad.
+        </p>
+        <div class="mt-8 flex gap-4">
+          <a href="/api/productos/" class="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-white hover:bg-indigo-500 text-base">
+            Ver productos
+          </a>
+          <a href="/register/" class="inline-block rounded-lg border border-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-100 text-base">
+            Crear cuenta
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-gray-100 text-center py-4 text-gray-600">
+  <p>&copy; 2025 Ferremas - Todos los derechos reservados</p>
+</footer>
+
 </body>
 </html>
+
+
+
+
+
+
