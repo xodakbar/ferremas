@@ -51,3 +51,6 @@ def login_view(request):
             return render(request, 'usuarios/login.html', {'error': 'Credenciales inválidas'})
     return render(request, 'usuarios/login.html')
 
+
+def acceso_denegado(request):
+    return render(request, 'usuarios/acceso_denegado.html', status=403)
