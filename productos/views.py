@@ -70,3 +70,19 @@ def actualizar_stock(request, producto_id):
     
     return redirect('lista-productos-bodega')
 
+@rol_requerido('bodeguero', 'administrador')
+def editar_producto(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    
+    if request.method == 'POST':
+        producto.nombre = request.POST.get('nombre', producto.nombre)
+        producto.categoria = request.POST.get('categoria', producto.categoria)
+        producto.precio = request.POST.get('precio', producto.precio)
+        producto.stock = request.POST.get('stock', producto.stock)
+        producto.descripcion = request.POST.get('descripcion', producto.descripcion)
+        producto.save()
+        
+        messages.success(request, 'Producto actualizado correctamente')
+        return redirect('lista-productos-bodega')
+    
+    return render(request, 'productos/editar_producto.html', {'producto': producto})
