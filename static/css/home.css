@@ -63,3 +63,18 @@ footer {
     padding: 1rem;
     margin-top: 2rem;
 }
+
+#compactCarousel {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  #compactCarousel .carousel-control-prev, 
+  #compactCarousel .carousel-control-next {
+    width: 100px;
+    height: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 50%;
+  }
+  #compactCarousel .carousel-control-prev { left: 15px; }
+  #compactCarousel .carousel-control-next { right: 15px; }
