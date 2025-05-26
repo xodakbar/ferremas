@@ -7,7 +7,7 @@ document.getElementById("registerForm").addEventListener("submit", function(even
         last_name: formData.get("last_name"),
         email: formData.get("email"),
         password: formData.get("password"),
-        rol: "cliente"  // asigna rol automático
+        rol: "cliente"
     };
 
     fetch("http://127.0.0.1:8000/api/usuarios/", {
@@ -17,9 +17,10 @@ document.getElementById("registerForm").addEventListener("submit", function(even
         },
         body: JSON.stringify(data)
     })
-    .then(response => {
+    .then(async response => {
         if (!response.ok) {
-            return response.json().then(err => {throw err;});
+            const err = await response.json();
+            throw err;
         }
         return response.json();
     })

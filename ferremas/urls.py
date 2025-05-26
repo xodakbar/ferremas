@@ -1,8 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from productos.views import ProductoViewSet, lista_productos, agregar_producto,actualizar_stock,editar_producto
-from usuarios.views import UsuarioViewSet, register_user, home, login_view, acceso_denegado
+from carrito import views
+from productos.views import ProductoViewSet, lista_productos, agregar_producto,actualizar_stock,editar_producto, eliminar_producto
+from usuarios.views import UsuarioViewSet, register_user,home, login_view, acceso_denegado
+from carrito.views import agregar_al_carrito, ver_carrito
+from carrito.webpay import pagar, commit
 
 router = DefaultRouter()
 router.register(r'productos', ProductoViewSet)  # Corregí el nombre de 'productos' (antes decía 'productos')
@@ -13,6 +16,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('', home, name='home'),  
 
+    # URLs para usuarios
     
     path('registro/', register_user, name='register_user'),
     path('login/', login_view, name='login'),
@@ -23,7 +27,13 @@ urlpatterns = [
     path('bodega/productos/actualizar-stock/<int:producto_id>/', actualizar_stock, name='actualizar-stock'),
     path('bodega/productos/agregar/', agregar_producto, name='agregar-producto'),
     path('bodega/productos/editar/<int:producto_id>/', editar_producto, name='editar-producto'),
-    
-    # Puedes agregar también para editar si lo necesitas
-    # path('productos/editar/<int:id>/', editar_producto, name='editar_producto'),
+    path('productos/eliminar/<int:producto_id>/', eliminar_producto, name='eliminar-producto'),
+
+    #URLs para carrito
+    path('agregar/', agregar_al_carrito, name='agregar_al_carrito'),
+    path('carrito/', ver_carrito, name='ver_carrito'),
+
+    #URLs WebPay
+    path('webpay/pagar/', pagar, name='iniciar_pago'),
+    path('webpay/commit/', commit, name='commit_pago'),
 ]

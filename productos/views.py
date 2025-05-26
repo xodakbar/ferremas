@@ -9,15 +9,13 @@ from django.contrib import messages
 from rest_framework import serializers
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-
+from .models import Marca, Categoria
 
 
 class ProductoViewSet(viewsets.ModelViewSet):
-    queryset = Producto.objects.filter(activo=True)  # Solo productos activos
-    serializer_class = ProductoSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]  # Seguridad básica
-    
-    # Filtros simples directamente en el viewset
+    queryset = Producto.objects.filter(activo=True)
+    serializer_class = ProductoSerializer  # Usa el serializer con nombres personalizados
+
     def get_queryset(self):
         queryset = super().get_queryset()
         categoria = self.request.query_params.get('categoria')
@@ -25,55 +23,85 @@ class ProductoViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(categoria__iexact=categoria)
         return queryset
 
-class PrecioProductoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PrecioProducto
-        fields = ['fecha', 'valor']
-
-class ProductoSerializer(serializers.ModelSerializer):
-    precios = PrecioProductoSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Producto
-        fields = [
-            'id', 'nombre', 'descripcion', 'precio', 'stock',
-            'categoria', 'codigo_fabricante', 'marca', 'activo', 'precios'
-        ]
 
 def productos_template(request):
     categoria = request.GET.get('categoria')
     productos = Producto.objects.filter(activo=True)
     
     if categoria:
-        productos = productos.filter(categoria__iexact=categoria)
+        productos = productos.filter(categoria_id=categoria)
     
-    return render(request, 'productos/listar.html', {
+    categorias = Categoria.objects.all()
+    
+    return render(request, 'productos/lista_producto.html', {
         'productos': productos,
-        'categorias': Producto.objects.values_list('categoria', flat=True).distinct()
+        'categorias': categorias
     })
 
 @rol_requerido('bodeguero', 'administrador')
 def lista_productos(request):
     productos = Producto.objects.filter(activo=True)
     
-    # Filtros
     categoria = request.GET.get('categoria')
     if categoria:
-        productos = productos.filter(categoria__iexact=categoria)
+        productos = productos.filter(categoria_id=categoria)
     
-    # Búsqueda
     query = request.GET.get('q')
     if query:
         productos = productos.filter(nombre__icontains=query)
     
-    return render(request, 'productos/lista_bodega.html', {
+    categorias = Categoria.objects.all()
+    
+    return render(request, 'productos/listar_producto.html', {
         'productos': productos,
-        'categorias': Producto.objects.values_list('categoria', flat=True).distinct()
+        'categorias': categorias
     })
+
 
 @rol_requerido('bodeguero', 'administrador')
 def agregar_producto(request):
-    return render(request, 'productos/agregar_producto.html')
+    marcas = Marca.objects.all()
+    categorias = Categoria.objects.all()
+    return render(request, 'productos/agregar_producto.html', {'marcas': marcas, 'categorias': categorias})
+
+
+@rol_requerido('bodeguero', 'administrador')
+def editar_producto(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    marcas = Marca.objects.all()
+    categorias = Categoria.objects.all()
+
+    if request.method == "POST":
+        producto.nombre = request.POST.get("nombre")
+        producto.descripcion = request.POST.get("descripcion")
+        producto.precio = float(request.POST.get("precio") or 0)
+        producto.stock = int(request.POST.get("stock") or 0)
+        producto.codigo_fabricante = request.POST.get("codigo_fabricante")
+        producto.marca_id = int(request.POST.get("marca"))
+        producto.categoria_id = int(request.POST.get("categoria"))
+        producto.activo = "activo" in request.POST
+
+        producto.save()
+        return redirect('lista-productos-bodega')
+
+    return render(request, "productos/editar_producto.html", {
+        "producto": producto,
+        "marcas": marcas,
+        "categorias": categorias,
+    })
+
+
+
+@rol_requerido('bodeguero', 'administrador')
+def eliminar_producto(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+
+    if request.method == "POST":
+        producto.delete()
+        messages.success(request, "Producto eliminado correctamente.")
+        return redirect('lista-productos-bodega')
+
+    return render(request, "productos/confirmar_eliminar.html", {"producto": producto})
 
 @rol_requerido('bodeguero', 'administrador')
 def actualizar_stock(request, producto_id):
@@ -89,25 +117,6 @@ def actualizar_stock(request, producto_id):
             messages.error(request, 'El stock debe ser un número válido')
     
     return redirect('lista-productos-bodega')
-
-@rol_requerido('bodeguero', 'administrador')
-def editar_producto(request, producto_id):
-    producto = get_object_or_404(Producto, id=producto_id)
-    
-    if request.method == 'POST':
-        producto.nombre = request.POST.get('nombre', producto.nombre)
-        producto.categoria = request.POST.get('categoria', producto.categoria)
-        producto.precio = request.POST.get('precio', producto.precio)
-        producto.stock = request.POST.get('stock', producto.stock)
-        producto.descripcion = request.POST.get('descripcion', producto.descripcion)
-        producto.marca = request.POST.get('marca', producto.marca)
-        producto.codigo_fabricante = request.POST.get('codigo_fabricante', producto.codigo_fabricante)
-        producto.save()
-        
-        messages.success(request, 'Producto actualizado correctamente')
-        return redirect('lista-productos-bodega')
-    
-    return render(request, 'productos/editar_producto.html', {'producto': producto})
 
 @receiver(pre_save, sender=Producto)
 def guardar_precio_historial(sender, instance, **kwargs):

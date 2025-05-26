@@ -1,10 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const formulario = document.getElementById('formulario-producto');
-    
-    // Verifica si el formulario existe en la página
     if (!formulario) return;
 
-    // Crea el elemento de mensaje dinámicamente si no existe
     let mensajeDiv = document.getElementById('mensaje');
     if (!mensajeDiv) {
         mensajeDiv = document.createElement('div');
@@ -15,25 +12,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
     formulario.addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        // Obtener datos del formulario
-        const formData = {
-            nombre: formulario.nombre.value,
-            descripcion: formulario.descripcion.value,
-            precio: parseFloat(formulario.precio.value),
-            stock: parseInt(formulario.stock.value),
-            categoria: formulario.categoria.value,
-            activo: true  // Asegurando que el producto se cree como activo
-        };
+        const codigo_producto = formulario.querySelector('input[name="codigo_producto"]').value;
+        const nombre = formulario.querySelector('input[name="nombre"]').value.trim();
+        const descripcion = formulario.querySelector('textarea[name="descripcion"]').value.trim();
+        const codigo_fabricante = formulario.querySelector('input[name="codigo_fabricante"]').value.trim();
+        const marca = parseInt(formulario.querySelector('select[name="marca"]').value);
+        const categoria = parseInt(formulario.querySelector('select[name="categoria"]').value);
+        const stock = parseInt(formulario.querySelector('input[name="stock"]').value);
+        const activo = formulario.querySelector('input[name="activo"]').checked;
+        const precio = parseFloat(formulario.querySelector('input[name="precio"]').value);
 
-        // Validación básica
-        if (!formData.nombre || !formData.precio || !formData.categoria) {
-            mostrarMensaje('Por favor complete los campos requeridos', 'danger', mensajeDiv);
+        if (!nombre || !precio || !marca || !categoria || !codigo_fabricante) {
+            mostrarMensaje('Por favor complete todos los campos obligatorios', 'danger', mensajeDiv);
             return;
         }
 
-        // Enviar datos a la API
-        fetch('/api/productos/', {
+        const formData = {
+            codigo_producto,
+            nombre,
+            descripcion,
+            precio,
+            stock,
+            codigo_fabricante,
+            marca_id: marca,
+            categoria_id: categoria,
+            activo
+        };
+
+        fetch('http://127.0.0.1:8000/api/productos/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -57,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (error.detail) {
                 errorMsg = error.detail;
             } else if (typeof error === 'object') {
-                errorMsg = Object.values(error).join(', ');
+                errorMsg = Object.values(error).flat().join(', ');
             }
             mostrarMensaje(errorMsg, 'danger', mensajeDiv);
         });
@@ -71,14 +77,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    // Función para obtener el token CSRF
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
                 }
@@ -86,23 +91,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return cookieValue;
     }
-
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        fetch(this.action, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': this.csrfmiddlewaretoken.value,
-                'Accept': 'application/json',
-            },
-            body: new FormData(this)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showToast('Stock actualizado');
-            }
-        });
-    });
 });

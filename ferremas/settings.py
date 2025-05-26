@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'productos',
     'rest_framework',
     'corsheaders',
+    'carrito',
 ]
 
 MIDDLEWARE = [

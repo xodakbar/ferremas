@@ -15,7 +15,6 @@ class UsuarioSerializer(serializers.ModelSerializer):
         email = validated_data.get('email')
         usuario = Usuario(
         username=email,  # 👈 Esto es lo importante
-        rol='cliente',
         **validated_data
     )
         usuario.set_password(password)  # Asegura que la contraseña se guarde de forma segura

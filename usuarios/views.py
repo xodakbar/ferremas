@@ -6,6 +6,7 @@ from .models import Usuario
 from .serializers import UsuarioSerializer
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+import requests
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
@@ -14,29 +15,13 @@ class UsuarioViewSet(viewsets.ModelViewSet):
 
 
 def register_user(request):
-    if request.method == 'POST':
-        email = request.POST['email']
-        nombre = request.POST['first_name']
-        apellido = request.POST['last_name']
-        password = request.POST['password']
-
-        if Usuario.objects.filter(username=email).exists():
-            return HttpResponse("Ya existe un usuario con este correo.")  # Mensaje simple, puedes redirigir o mejorar esto
-
-        user = Usuario.objects.create_user(
-            username=email,     # 👈 usamos email como username
-            email=email,
-            first_name=nombre,
-            last_name=apellido,
-            password=password,
-            rol='cliente'       # 👈 asignación automática
-        )
-        return redirect('home')
 
     return render(request, 'usuarios/register.html')
 
 def home(request):
-    return render(request, 'usuarios/home.html')
+    resp = requests.get('http://127.0.0.1:8000/api/productos/')
+    productos = resp.json() if resp.status_code == 200 else []
+    return render(request, 'usuarios/home.html', {'productos': productos})
 
 
 def login_view(request):
