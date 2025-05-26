@@ -12,7 +12,12 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password')
-        usuario = Usuario(**validated_data)
+        email = validated_data.get('email')
+        usuario = Usuario(
+        username=email,  # 👈 Esto es lo importante
+        rol='cliente',
+        **validated_data
+    )
         usuario.set_password(password)  # Asegura que la contraseña se guarde de forma segura
         usuario.save()
         return usuario

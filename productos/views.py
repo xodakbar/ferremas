@@ -1,11 +1,16 @@
 from rest_framework import viewsets
 from .models import Producto
-from .serializers import ProductoSerializer
+from .serializers import ProductoSerializer,PrecioProducto
 from rest_framework.permissions import IsAuthenticatedOrReadOnly  # Mejor que AllowAny para producción
 from django.shortcuts import render
 from usuarios.decorators import rol_requerido
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from rest_framework import serializers
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+
+
 
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.filter(activo=True)  # Solo productos activos
@@ -19,6 +24,21 @@ class ProductoViewSet(viewsets.ModelViewSet):
         if categoria:
             queryset = queryset.filter(categoria__iexact=categoria)
         return queryset
+
+class PrecioProductoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PrecioProducto
+        fields = ['fecha', 'valor']
+
+class ProductoSerializer(serializers.ModelSerializer):
+    precios = PrecioProductoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Producto
+        fields = [
+            'id', 'nombre', 'descripcion', 'precio', 'stock',
+            'categoria', 'codigo_fabricante', 'marca', 'activo', 'precios'
+        ]
 
 def productos_template(request):
     categoria = request.GET.get('categoria')
@@ -80,9 +100,18 @@ def editar_producto(request, producto_id):
         producto.precio = request.POST.get('precio', producto.precio)
         producto.stock = request.POST.get('stock', producto.stock)
         producto.descripcion = request.POST.get('descripcion', producto.descripcion)
+        producto.marca = request.POST.get('marca', producto.marca)
+        producto.codigo_fabricante = request.POST.get('codigo_fabricante', producto.codigo_fabricante)
         producto.save()
         
         messages.success(request, 'Producto actualizado correctamente')
         return redirect('lista-productos-bodega')
     
     return render(request, 'productos/editar_producto.html', {'producto': producto})
+
+@receiver(pre_save, sender=Producto)
+def guardar_precio_historial(sender, instance, **kwargs):
+    if instance.pk:
+        original = Producto.objects.get(pk=instance.pk)
+        if instance.precio != original.precio:
+            PrecioProducto.objects.create(producto=instance, valor=instance.precio)

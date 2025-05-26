@@ -1,5 +1,5 @@
 document.getElementById("registerForm").addEventListener("submit", function(event) {
-    event.preventDefault(); // Evita que el formulario se envíe de la manera tradicional
+    event.preventDefault();
 
     const formData = new FormData(this);
     const data = {
@@ -7,23 +7,29 @@ document.getElementById("registerForm").addEventListener("submit", function(even
         last_name: formData.get("last_name"),
         email: formData.get("email"),
         password: formData.get("password"),
+        rol: "cliente"  // asigna rol automático
     };
 
-    // Hacer la solicitud a la API usando Fetch
-    fetch("http://127.0.0.1:8000/usuarios/", {
+    fetch("http://127.0.0.1:8000/api/usuarios/", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {throw err;});
+        }
+        return response.json();
+    })
     .then(data => {
         alert("Usuario registrado con éxito");
         console.log(data);
+        // Aquí podrías redirigir a login o home
     })
     .catch(error => {
         console.error("Error:", error);
-        alert("Hubo un error al registrar el usuario");
+        alert("Error al registrar usuario: " + JSON.stringify(error));
     });
 });

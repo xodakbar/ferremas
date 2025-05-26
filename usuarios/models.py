@@ -13,6 +13,8 @@ class Usuario(AbstractUser):
     )
     rol = models.CharField(max_length=20, choices=ROLES)
 
+    USERNAME_FIELD = 'username'  # Mantienes el login con username (en este caso, será el email)
+    REQUIRED_FIELDS = ['email']
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
 
