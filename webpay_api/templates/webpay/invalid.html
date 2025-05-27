@@ -1,0 +1,22 @@
+<!-- webpay_payments/templates/webpay/invalid.html -->
+
+<div class="container mt-5">
+    <div class="alert alert-danger">
+        <h4 class="alert-heading">⚠️ Acceso inválido</h4>
+        <p>La transacción no pudo ser verificada porque:</p>
+        <ul>
+            <li>No se recibieron parámetros de WebPay</li>
+            <li>La sesión de pago expiró</li>
+            <li>Accediste directamente a esta URL</li>
+        </ul>
+        <hr>
+        <div class="text-center">
+            <a href="{% url 'inicio' %}" class="btn btn-primary">
+                <i class="fas fa-home"></i> Volver al inicio
+            </a>
+            <a href="{% url 'carrito' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-shopping-cart"></i> Reintentar pago
+            </a>
+        </div>
+    </div>
+</div>

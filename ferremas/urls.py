@@ -5,7 +5,6 @@ from carrito import views
 from productos.views import ProductoViewSet, lista_productos, agregar_producto,actualizar_stock,editar_producto, eliminar_producto
 from usuarios.views import UsuarioViewSet, register_user,home, login_view, acceso_denegado
 from carrito.views import agregar_al_carrito, ver_carrito
-from carrito.webpay import pagar, commit
 
 router = DefaultRouter()
 router.register(r'productos', ProductoViewSet)  # Corregí el nombre de 'productos' (antes decía 'productos')
@@ -33,7 +32,6 @@ urlpatterns = [
     path('agregar/', agregar_al_carrito, name='agregar_al_carrito'),
     path('carrito/', ver_carrito, name='ver_carrito'),
 
-    #URLs WebPay
-    path('webpay/pagar/', pagar, name='iniciar_pago'),
-    path('webpay/commit/', commit, name='commit_pago'),
+    #URLs para WebPay
+    path('webpay/', include('webpay_api.urls')),
 ]

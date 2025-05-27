@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'carrito',
+    "webpay_api",
 ]
 
 MIDDLEWARE = [
@@ -149,3 +150,10 @@ REST_FRAMEWORK = {
 CSRF_COOKIE_HTTPONLY = False
 
 CORS_ALLOW_ALL_ORIGINS = True  
+
+WEBPAY_CONFIG = {
+    'COMMERCE_CODE': '597055555532',  # Código de comercio de prueba
+    'API_KEY': '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C',
+    'ENVIRONMENT': 'INTEGRATION',  # Ambiente de pruebas
+    'RETURN_URL': 'http://localhost:8000/webpay/response/',  # URL de retorno
+}
