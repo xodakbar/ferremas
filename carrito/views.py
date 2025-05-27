@@ -5,9 +5,10 @@ from .serializers import CarritoSerializer, ItemCarritoSerializer
 from productos.models import Producto
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
-import json
-from django.shortcuts import render
-
+from bancentral.views import obtener_tipo_cambio_usd
+from django.shortcuts import render,redirect
+from django.contrib import messages
+from django.shortcuts import redirect, get_object_or_404
 
 class CarritoViewSet(viewsets.ModelViewSet):
     queryset = Carrito.objects.all()
@@ -61,46 +62,76 @@ class ItemCarritoViewSet(viewsets.ModelViewSet):
 @csrf_protect
 def agregar_al_carrito(request):
     if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            producto_id = data.get('producto_id')
-            cantidad = int(data.get('cantidad', 1))
+        producto_id = request.POST.get('producto_id')
+        cantidad = int(request.POST.get('cantidad', 1))
 
-            if not producto_id:
-                return JsonResponse({'error': 'producto_id es requerido'}, status=400)
+        if not producto_id:
+            messages.error(request, 'Debe seleccionar un producto.')
+            return redirect('lista-productos-bodega')  # O la página que corresponda
 
-            session_id = request.session.session_key or request.session.create()
+        producto = get_object_or_404(Producto, pk=producto_id)
 
-            try:
-                producto = Producto.objects.get(pk=producto_id)
-            except Producto.DoesNotExist:
-                return JsonResponse({'error': 'Producto no encontrado'}, status=404)
+        session_id = request.session.session_key
+        if not session_id:
+            request.session.create()
+            session_id = request.session.session_key
 
-            carrito, _ = Carrito.objects.get_or_create(session_id=session_id)
+        carrito, _ = Carrito.objects.get_or_create(session_id=session_id)
 
-            item, created = ItemCarrito.objects.get_or_create(
-                carrito=carrito,
-                producto=producto,
-                defaults={'cantidad': cantidad}
-            )
+        item, created = ItemCarrito.objects.get_or_create(
+            carrito=carrito,
+            producto=producto,
+            defaults={'cantidad': cantidad, 'precio': producto.precio}
+        )
 
-            if not created:
-                item.cantidad += cantidad
-                item.save()
+        if not created:
+            item.cantidad += cantidad
+            item.save()
 
-            return JsonResponse({'mensaje': 'Producto agregado al carrito', 'carrito_id': carrito.id})
+        messages.success(request, f'Producto "{producto.nombre}" agregado al carrito.')
 
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido'}, status=400)
+        # Redirigir a la página del carrito o la página anterior
+        return redirect('ver_carrito')
 
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
+    # Si no es POST, redirige a productos
+    return redirect('lista-productos-bodega')
 
 def ver_carrito(request):
-    session_id = request.session.session_key or request.session.create()
-    carrito = Carrito.objects.filter(session_id=session_id).first()
-    items = ItemCarrito.objects.filter(carrito=carrito) if carrito else []
+    if not request.session.session_key:
+        request.session.create()
+    
+    session_id = request.session.session_key
+    carrito, _ = Carrito.objects.get_or_create(session_id=session_id)
+    items = ItemCarrito.objects.filter(carrito=carrito)
+    
+    total = sum(item.producto.precio * item.cantidad for item in items)
+    # Obtener tipo de cambio USD
+    total_clp = total
+    tipo_cambio_usd = obtener_tipo_cambio_usd()
 
-    total = 0
-    for item in items:
-        total += item.producto.precio * item.cantidad
-    return render(request, 'carrito/carrito.html', {'items': items, 'total' : total})
+    if tipo_cambio_usd:
+        total_usd = total_clp / tipo_cambio_usd
+    else:
+        total_usd = None  # o mostrar mensaje "No disponible"
+    context = {
+        'items': items,
+        'total': total,
+        'carrito': carrito,  # Pasamos el objeto carrito completo
+        'total_clp': total_clp,
+        'total_usd': total_usd,
+        'tipo_cambio_usd': tipo_cambio_usd,
+    }
+    return render(request, 'carrito/carrito.html', context)
+
+def vaciar_carrito(request):
+    session_id = request.session.session_key
+    if session_id:
+        try:
+            carrito = Carrito.objects.get(session_id=session_id)
+            # Borra todos los items del carrito
+            carrito.items.all().delete()
+            # Opcional: eliminar el carrito mismo
+            # carrito.delete()
+        except Carrito.DoesNotExist:
+            pass
+    return redirect('ver_carrito')  # Redirige a la página del carrito

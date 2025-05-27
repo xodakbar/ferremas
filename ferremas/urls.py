@@ -3,9 +3,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from carrito import views
 from productos.views import ProductoViewSet, lista_productos, agregar_producto,actualizar_stock,editar_producto, eliminar_producto
-from usuarios.views import UsuarioViewSet, register_user,home, login_view, acceso_denegado
-from carrito.views import agregar_al_carrito, ver_carrito
-
+from usuarios.views import UsuarioViewSet, register_user,home, login_view, acceso_denegado,logout_view
+from carrito.views import agregar_al_carrito, ver_carrito, vaciar_carrito
 router = DefaultRouter()
 router.register(r'productos', ProductoViewSet)  # Corregí el nombre de 'productos' (antes decía 'productos')
 router.register(r'usuarios', UsuarioViewSet)
@@ -20,6 +19,7 @@ urlpatterns = [
     path('registro/', register_user, name='register_user'),
     path('login/', login_view, name='login'),
     path('acceso-denegado/', acceso_denegado, name='acceso-denegado'),
+    path('logout/', logout_view, name='logout'),
     
     # URLs para productos
     path('bodega/productos/', lista_productos, name='lista-productos-bodega'),
@@ -31,7 +31,11 @@ urlpatterns = [
     #URLs para carrito
     path('agregar/', agregar_al_carrito, name='agregar_al_carrito'),
     path('carrito/', ver_carrito, name='ver_carrito'),
+    path('carrito/vaciar/', vaciar_carrito, name='vaciar_carrito'),
 
     #URLs para WebPay
-    path('webpay/', include('webpay_api.urls')),
+    
+    path('pagos/', include('pagos.urls')),
+
+    
 ]

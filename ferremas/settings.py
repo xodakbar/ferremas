@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'carrito',
-    "webpay_api",
+    'pagos',
+    'bancentral',
 ]
 
 MIDDLEWARE = [
@@ -83,6 +84,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / "db.sqlite3",
+        
+        
     }
 }
 
@@ -112,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Santiago'
 
 USE_I18N = True
 
@@ -153,7 +156,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 WEBPAY_CONFIG = {
     'COMMERCE_CODE': '597055555532',  # Código de comercio de prueba
-    'API_KEY': '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C',
-    'ENVIRONMENT': 'INTEGRATION',  # Ambiente de pruebas
-    'RETURN_URL': 'http://localhost:8000/webpay/response/',  # URL de retorno
+    'API_KEY': '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C',  # API Key de prueba
+    'ENVIRONMENT': 'TEST'  # 'TEST' para desarrollo, 'LIVE' para producción
 }

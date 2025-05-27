@@ -7,6 +7,8 @@ from .serializers import UsuarioSerializer
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 import requests
+from django.contrib.auth import logout
+from django.views.decorators.http import require_POST
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
@@ -39,3 +41,8 @@ def login_view(request):
 
 def acceso_denegado(request):
     return render(request, 'usuarios/acceso_denegado.html', status=403)
+
+@require_POST
+def logout_view(request):
+    logout(request)
+    return redirect('home')
