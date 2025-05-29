@@ -7,41 +7,98 @@
     <title>Registrar Usuario</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .success-message {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
 </head>
-<body class="bg-light d-flex align-items-center" style="min-height: 100vh;">
-    <div class="container position-relative">
-        <!-- Botón volver al menú -->
-        
-
+<body>
+    <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h3 class="card-title text-center mb-4">Registrar Usuario</h3>
-                        <form method="POST" action="{% url 'register_user' %}" id="registerForm">
-                            {% csrf_token %}
-                            <a href="{% url 'home' %}" class="btn btn-outline-primary position-absolute top-0 start-0 m-3" title="Volver al menú">
-            <i class="bi bi-house-door-fill"></i>
-        </a>
+            <div class="col-md-8 col-lg-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="text-center mb-0">Registro de Usuario</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Mensaje de éxito (oculto inicialmente) -->
+                        <div id="successMessage" class="alert alert-success success-message mb-4">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            ¡Registro exitoso! Redirigiendo...
+                        </div>
+
+                        <!-- Formulario con protección CSRF -->
+                        <form method="POST" action="{% url 'register_user' %}" id="registerForm" novalidate>
+                            {% csrf_token %} 
+                            
                             <div class="mb-3">
                                 <label for="first_name" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                </div>
                             </div>
+                            
                             <div class="mb-3">
                                 <label for="last_name" class="form-label">Apellido</label>
-                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person-badge-fill"></i></span>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                </div>
                             </div>
+                            
                             <div class="mb-3">
-                                <label for="email" class="form-label">Correo electrónico</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
+                                <label for="email" class="form-label">Correo Electrónico</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
                             </div>
-                            <div class="mb-3">
+                            
+                            <div class="mb-4">
                                 <label for="password" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Mínimo 8 caracteres</div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Registrar</button>
-                            <div class="text-center mt-3">
-                                <a href="{% url 'login' %}" class="text-decoration-none">¿Ya tienes cuenta? Iniciar sesión</a>
+                            
+                            <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                                <i class="bi bi-person-plus-fill me-2"></i>Registrarse
+                            </button>
+                            
+                            <div class="text-center">
+                                <a href="{% url 'login' %}" class="text-decoration-none">
+                                    ¿Ya tienes cuenta? Inicia sesión
+                                </a>
                             </div>
                         </form>
                     </div>
@@ -49,7 +106,67 @@
             </div>
         </div>
     </div>
-    <script src="{% static 'js/register.js' %}"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mostrar/ocultar contraseña
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const password = document.getElementById('password');
+            const icon = this.querySelector('i');
+            if (password.type === 'password') {
+                password.type = 'text';
+                icon.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
+            } else {
+                password.type = 'password';
+                icon.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
+            }
+        });
+
+        // Manejo del formulario con CSRF
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validación básica
+            if (!this.checkValidity()) {
+                e.stopPropagation();
+                this.classList.add('was-validated');
+                return;
+            }
+            
+            // Obtener token CSRF
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            // Enviar datos
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(new FormData(this))
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Mostrar mensaje de éxito
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Limpiar formulario
+                    this.reset();
+                    this.classList.remove('was-validated');
+                    
+                    // Redirigir después de 2 segundos
+                    setTimeout(() => {
+                        window.location.href = "{% url 'login' %}";
+                    }, 2000);
+                } else {
+                    throw new Error('Error en el registro');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error durante el registro');
+            });
+        });
+    </script>
 </body>
 </html>
