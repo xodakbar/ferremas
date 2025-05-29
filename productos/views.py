@@ -62,6 +62,22 @@ def lista_productos(request):
 def agregar_producto(request):
     marcas = Marca.objects.all()
     categorias = Categoria.objects.all()
+    if request.method == "POST":
+        producto = Producto()
+        producto.nombre = request.POST.get("nombre")
+        # ... otros campos ...
+        producto.marca_id = int(request.POST.get("marca"))
+        producto.categoria_id = int(request.POST.get("categoria"))
+        producto.precio = float(request.POST.get("precio") or 0)
+        producto.stock = int(request.POST.get("stock") or 0)
+        producto.codigo_fabricante = request.POST.get("codigo_fabricante")
+        producto.activo = "activo" in request.POST
+        
+        if 'imagen' in request.FILES:
+            producto.imagen = request.FILES['imagen']
+
+        producto.save()
+        return redirect('lista-productos-bodega')
     return render(request, 'productos/agregar_producto.html', {'marcas': marcas, 'categorias': categorias})
 
 
@@ -80,6 +96,8 @@ def editar_producto(request, producto_id):
         producto.marca_id = int(request.POST.get("marca"))
         producto.categoria_id = int(request.POST.get("categoria"))
         producto.activo = "activo" in request.POST
+        if 'imagen' in request.FILES:
+            producto.imagen = request.FILES['imagen']
 
         producto.save()
         return redirect('lista-productos-bodega')

@@ -5,7 +5,6 @@ from .serializers import CarritoSerializer, ItemCarritoSerializer
 from productos.models import Producto
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
-from bancentral.views import obtener_tipo_cambio_usd
 from django.shortcuts import render,redirect
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404

@@ -113,6 +113,10 @@
           <h5 class="card-title">{{ producto.nombre }}</h5>
           <p class="text-sm text-gray-600">Marca: {{ producto.marca.nombre }}</p>
           <p class="card-text fw-bold text-primary">${{ producto.precio }}</p>
+{% if producto.precio_en_dolares %}
+  <p class="text-muted">≈ ${{ producto.precio_en_dolares|floatformat:2 }} USD</p>
+{% endif %}
+
           <form action="{% url 'agregar_al_carrito' %}" method="post" class="d-inline">
     {% csrf_token %}
     <input type="hidden" name="producto_id" value="{{ producto.id }}">

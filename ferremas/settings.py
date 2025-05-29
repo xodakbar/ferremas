@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'carrito',
     'pagos',
-    'bancentral',
+    'bancocentral',
 ]
 
 MIDDLEWARE = [
@@ -159,3 +159,6 @@ WEBPAY_CONFIG = {
     'API_KEY': '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C',  # API Key de prueba
     'ENVIRONMENT': 'TEST'  # 'TEST' para desarrollo, 'LIVE' para producción
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
