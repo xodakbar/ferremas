@@ -53,6 +53,11 @@
           </li>
           
         {% endif %}
+        {% if request.user.is_authenticated and request.user.rol == "bodeguero" %}
+  <li class="nav-item">
+    <a href="{% url 'lista-productos-bodega' %}" class="btn btn-info me-2">Bodega</a>
+  </li>
+{% endif %}
         {% if request.user.is_authenticated %}
   <li class="nav-item">
     <a href="{% url 'ver_carrito' %}" class="btn btn-warning">🛒</a>

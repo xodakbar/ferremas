@@ -122,6 +122,7 @@ def ver_carrito(request):
         'carrito': carrito,  # Pasamos el objeto carrito completo
         'total_clp': total_clp,
         'total_usd': total_usd,
+
     }
     
     return render(request, 'carrito/carrito.html', context)
