@@ -9,6 +9,8 @@ from django.contrib.auth.decorators import login_required
 import requests
 from django.contrib.auth import logout
 from django.views.decorators.http import require_POST
+from django.conf import settings
+
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
@@ -23,7 +25,8 @@ def register_user(request):
 def home(request):
     resp = requests.get('http://127.0.0.1:8000/api/productos/')
     productos = resp.json() if resp.status_code == 200 else []
-    return render(request, 'usuarios/home.html', {'productos': productos})
+
+    return render(request, 'usuarios/home.html', {'productos': productos ,'MEDIA_URL': settings.MEDIA_URL})
 
 
 def login_view(request):

@@ -11,6 +11,22 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from .models import Marca, Categoria
 
+from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import ProductoSerializer
+
+class ProductoCreateAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, *args, **kwargs):
+        serializer = ProductoSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.filter(activo=True)
@@ -23,7 +39,7 @@ class ProductoViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(categoria__iexact=categoria)
         return queryset
 
-
+@rol_requerido('bodeguero', 'administrador')
 def productos_template(request):
     categoria = request.GET.get('categoria')
     productos = Producto.objects.filter(activo=True)
@@ -55,6 +71,7 @@ def lista_productos(request):
     return render(request, 'productos/listar_producto.html', {
         'productos': productos,
         'categorias': categorias
+        
     })
 
 
@@ -136,9 +153,31 @@ def actualizar_stock(request, producto_id):
     
     return redirect('lista-productos-bodega')
 
+@rol_requerido('bodeguero', 'administrador')
 @receiver(pre_save, sender=Producto)
 def guardar_precio_historial(sender, instance, **kwargs):
     if instance.pk:
         original = Producto.objects.get(pk=instance.pk)
         if instance.precio != original.precio:
             PrecioProducto.objects.create(producto=instance, valor=instance.precio)
+
+@rol_requerido('bodeguero', 'administrador')
+def agregar_categoria(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre_categoria')
+        if nombre:
+            # Evitar duplicados, opcional:
+            if not Categoria.objects.filter(nombre__iexact=nombre).exists():
+                Categoria.objects.create(nombre=nombre)
+                print("Categoria creada")
+        return redirect('lista-productos-bodega')  # Cambia por la url name correcta
+    else:
+        # Si alguien intenta GET aquí, mejor redirigimos también
+        return redirect('lista-productos-bodega')
+
+def agregar_marca(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre_marca')
+        if nombre:
+            Marca.objects.get_or_create(nombre=nombre)
+    return redirect('lista-productos-bodega')

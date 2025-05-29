@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from productos.views import ProductoViewSet, lista_productos, agregar_producto,actualizar_stock,editar_producto, eliminar_producto
+from productos.views import ProductoViewSet, lista_productos, agregar_producto,actualizar_stock,editar_producto, eliminar_producto, agregar_categoria, agregar_marca, ProductoCreateAPIView
 from usuarios.views import UsuarioViewSet, register_user,home, login_view, acceso_denegado,logout_view
 from carrito.views import agregar_al_carrito, ver_carrito, vaciar_carrito
 from django.conf import settings
@@ -25,10 +25,14 @@ urlpatterns = [
     
     # URLs para productos
     path('bodega/productos/', lista_productos, name='lista-productos-bodega'),
+    path('bodega/categorias/agregar/', agregar_categoria, name='agregar-categoria'),
+    path('bodega/marcas/agregar/', agregar_marca, name='agregar-marca'),
     path('bodega/productos/actualizar-stock/<int:producto_id>/', actualizar_stock, name='actualizar-stock'),
     path('bodega/productos/agregar/', agregar_producto, name='agregar-producto'),
     path('bodega/productos/editar/<int:producto_id>/', editar_producto, name='editar-producto'),
     path('productos/eliminar/<int:producto_id>/', eliminar_producto, name='eliminar-producto'),
+
+    path('api/productos/', ProductoCreateAPIView.as_view(), name='api-productos'),
 
     #URLs para carrito
     path('agregar/', agregar_al_carrito, name='agregar_al_carrito'),

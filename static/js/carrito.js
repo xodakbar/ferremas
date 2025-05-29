@@ -41,3 +41,19 @@ function agregarAlCarrito(productoId) {
     alert("Error al agregar el producto: " + error);
   });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.btn-toggle-dolar').forEach(button => {
+      button.addEventListener('click', () => {
+        const precioDolares = button.previousElementSibling;
+        if (!precioDolares) return;
+        if (precioDolares.style.display === 'none' || precioDolares.style.display === '') {
+          precioDolares.style.display = 'block';
+          button.textContent = 'Ocultar precio en USD';
+        } else {
+          precioDolares.style.display = 'none';
+          button.textContent = 'Mostrar precio en USD';
+        }
+      });
+    });
+  });

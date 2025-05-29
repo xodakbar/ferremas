@@ -1,5 +1,6 @@
 {% load static %}
 {% load custom_filters %}
+{% load humanize %}
 
 <!DOCTYPE html>
 <html lang="es">
@@ -102,21 +103,15 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="total-box text-end">
-                                        <h4 class="mb-3">Total a pagar: <span class="text-success">${{ total|floatformat:2 }}</span></h4>
+                                        <h4 class="mb-3">Total a pagar: <span class="text-success">${{ total|floatformat:0|intcomma}}</span></h4>
                                         <div class="d-flex justify-content-end mt-4">
     <form action="{% url 'procesar_pago' carrito.id %}" method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-success btn-lg">
-            <i class="bi bi-credit-card"></i> Pagar ${{ total|floatformat:2 }} con WebPay
+            <i class="bi bi-credit-card"></i> Pagar ${{ total|floatformat:0|intcomma}} con WebPay
         </button>
     </form>
-    <p>Total en CLP: {{ total_clp }}</p>
-{% if total_usd %}
-  <p>Total en USD: {{ total_usd|floatformat:2 }}</p>
-  <small>Tipo de cambio: {{ tipo_cambio_usd|floatformat:2 }}</small>
-{% else %}
-  <p><em>Tipo de cambio no disponible</em></p>
-{% endif %}
+    <h4 class="mb-3">Total a pagar en USD: <span class="text-success">${{ total_usd|floatformat:2  }} USD</span></h4>
 </div>
                                         
                                         

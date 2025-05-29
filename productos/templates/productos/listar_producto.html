@@ -6,85 +6,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Gestión de Inventario</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-<body class="container my-5">
+<body class="bg-light">
 
-    <h2 class="mb-4 text-primary fw-bold">Gestión de Inventario</h2>
+<div class="container py-5">
 
+    <h2 class="mb-4 text-primary fw-bold text-center">Gestión de Inventario</h2>
+    <a href="{% url 'home' %}" class="btn btn-outline-primary position-absolute top-0 start-0 m-3" title="Volver al menú">
+            <i class="bi bi-house-door-fill"></i>
+        </a>
     <!-- Filtros -->
-    <form method="get" class="row g-3 align-items-center mb-4">
-        <div class="col-sm-6 col-md-4">
-            <input 
-                type="text" 
-                name="q" 
-                placeholder="Buscar producto..." 
-                class="form-control" 
-                value="{{ request.GET.q }}"
-                aria-label="Buscar producto"
-            >
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">Buscar producto</label>
+                    <input 
+                        type="text" 
+                        name="q" 
+                        placeholder="Nombre del producto..." 
+                        class="form-control" 
+                        value="{{ request.GET.q }}"
+                    >
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Categoría</label>
+                    <select name="categoria" class="form-select">
+  <option value="">Todas las categorías</option>
+  {% for cat in categorias %}
+    <option value="{{ cat.id }}" {% if request.GET.categoria == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.nombre }}</option>
+  {% endfor %}
+</select>
+                </div>
+                <div class="col-md-3 d-grid">
+                    <button type="submit" class="btn btn-primary mt-4">Filtrar</button>
+                </div>
+            </form>
         </div>
-        <div class="col-sm-4 col-md-3">
-            <select name="categoria" class="form-select" aria-label="Filtrar por categoría">
-                <option value="" {% if not request.GET.categoria %}selected{% endif %}>Todas las categorías</option>
-                {% for cat in categorias %}
-                <option value="{{ cat }}" {% if request.GET.categoria == cat %}selected{% endif %}>{{ cat }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-        </div>
-    </form>
-
-    <!-- Tabla de productos -->
-    <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th scope="col">Nombre</th>
-                    <th scope="col">Categoría</th>
-                    <th scope="col" style="width: 150px;">Stock</th>
-                    <th scope="col" style="width: 120px;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for producto in productos %}
-                <tr>
-                    <td>{{ producto.nombre }}</td>
-                    <td>{{ producto.categoria }}</td>
-                    <td>
-                        <form action="{% url 'actualizar-stock' producto.id %}" method="post" class="d-flex align-items-center gap-2 mb-0">
-                            {% csrf_token %}
-                            <input 
-                                type="number" 
-                                name="stock" 
-                                value="{{ producto.stock }}" 
-                                class="form-control form-control-sm" 
-                                min="0" 
-                                style="max-width: 80px;"
-                                aria-label="Actualizar stock de {{ producto.nombre }}"
-                            >
-                            <button type="submit" class="btn btn-sm btn-outline-success" title="Actualizar stock">✓</button>
-                        </form>
-                    </td>
-                    <td>
-                        <a href="{% url 'editar-producto' producto.id %}" class="btn btn-sm btn-warning" title="Editar producto {{ producto.nombre }}">Editar</a>
-                    </td>
-                    <td>
-                    <a href="{% url 'eliminar-producto' producto.id %}" class="btn btn-sm btn-danger ms-1" title="Eliminar producto {{ producto.nombre }}">Eliminar</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center text-muted fst-italic">No se encontraron productos.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
 
-    <a href="{% url 'agregar-producto' %}" class="btn btn-success mt-3">+ Agregar Producto</a>
+    <!-- Tabla de productos -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th style="width: 160px;">Stock</th>
+                            <th style="width: 160px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr>
+                            <td>{{ producto.nombre }}</td>
+                            <td>{{ producto.categoria }}</td>
+                            <td>
+                                <form action="{% url 'actualizar-stock' producto.id %}" method="post" class="d-flex align-items-center gap-2">
+                                    {% csrf_token %}
+                                    <input 
+                                        type="number" 
+                                        name="stock" 
+                                        value="{{ producto.stock }}" 
+                                        class="form-control form-control-sm" 
+                                        min="0" 
+                                        style="max-width: 80px;"
+                                    >
+                                    <button type="submit" class="btn btn-sm btn-outline-success">✓</button>
+                                </form>
+                            </td>
+                            <td class="d-flex gap-1">
+                                <a href="{% url 'editar-producto' producto.id %}" class="btn btn-sm btn-warning">Editar</a>
+                                <a href="{% url 'eliminar-producto' producto.id %}" class="btn btn-sm btn-danger">Eliminar</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted fst-italic">No se encontraron productos.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Formularios -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <form method="post" action="{% url 'agregar-categoria' %}" class="card p-3 shadow-sm mb-3 bg-white">
+                {% csrf_token %}
+                <h5 class="text-secondary">Agregar Nueva Categoría</h5>
+                <div class="input-group">
+                    <input type="text" name="nombre_categoria" placeholder="Nombre categoría" class="form-control" required>
+                    <button type="submit" class="btn btn-outline-primary">Agregar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-6">
+            <form method="post" action="{% url 'agregar-marca' %}" class="card p-3 shadow-sm mb-3 bg-white">
+                {% csrf_token %}
+                <h5 class="text-secondary">Agregar Nueva Marca</h5>
+                <div class="input-group">
+                    <input type="text" name="nombre_marca" placeholder="Nombre marca" class="form-control" required>
+                    <button type="submit" class="btn btn-outline-primary">Agregar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="d-grid mt-3">
+        <a href="{% url 'agregar-producto' %}" class="btn btn-success">+ Agregar Producto</a>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,51 +1,18 @@
 document.addEventListener('DOMContentLoaded', function() {
     const formulario = document.getElementById('formulario-producto');
-    if (!formulario) return;
-
-    let mensajeDiv = document.getElementById('mensaje');
-    if (!mensajeDiv) {
-        mensajeDiv = document.createElement('div');
-        mensajeDiv.id = 'mensaje';
-        mensajeDiv.className = 'alert d-none';
-        formulario.parentNode.insertBefore(mensajeDiv, formulario.nextSibling);
-    }
+    const mensajeDiv = document.getElementById('mensaje');
 
     formulario.addEventListener('submit', function(e) {
         e.preventDefault();
-        const codigo_producto = formulario.querySelector('input[name="codigo_producto"]').value;
-        const nombre = formulario.querySelector('input[name="nombre"]').value.trim();
-        const descripcion = formulario.querySelector('textarea[name="descripcion"]').value.trim();
-        const codigo_fabricante = formulario.querySelector('input[name="codigo_fabricante"]').value.trim();
-        const marca = parseInt(formulario.querySelector('select[name="marca"]').value);
-        const categoria = parseInt(formulario.querySelector('select[name="categoria"]').value);
-        const stock = parseInt(formulario.querySelector('input[name="stock"]').value);
-        const activo = formulario.querySelector('input[name="activo"]').checked;
-        const precio = parseFloat(formulario.querySelector('input[name="precio"]').value);
 
-        if (!nombre || !precio || !marca || !categoria || !codigo_fabricante) {
-            mostrarMensaje('Por favor complete todos los campos obligatorios', 'danger', mensajeDiv);
-            return;
-        }
-
-        const formData = {
-            codigo_producto,
-            nombre,
-            descripcion,
-            precio,
-            stock,
-            codigo_fabricante,
-            marca_id: marca,
-            categoria_id: categoria,
-            activo
-        };
+        const formData = new FormData(formulario); // Esto incluye todos los inputs y archivos
 
         fetch('http://127.0.0.1:8000/api/productos/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCookie('csrftoken')  // CSRF para Django
             },
-            body: JSON.stringify(formData)
+            body: formData
         })
         .then(response => {
             if (!response.ok) {
@@ -60,7 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error:', error);
             let errorMsg = 'Error al agregar el producto';
-            if (error.detail) {
+            if (error.imagen) {
+                errorMsg = error.imagen.join(', ');
+            } else if (error.detail) {
                 errorMsg = error.detail;
             } else if (typeof error === 'object') {
                 errorMsg = Object.values(error).flat().join(', ');

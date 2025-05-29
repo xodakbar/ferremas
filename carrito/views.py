@@ -8,6 +8,10 @@ from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render,redirect
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
+from bancocentral.utils import obtener_valor_dolar_bcentral
+from decimal import Decimal
+from django.contrib.auth.decorators import login_required
+
 
 class CarritoViewSet(viewsets.ModelViewSet):
     queryset = Carrito.objects.all()
@@ -57,7 +61,7 @@ class ItemCarritoViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
-
+@login_required
 @csrf_protect
 def agregar_al_carrito(request):
     if request.method == 'POST':
@@ -95,6 +99,7 @@ def agregar_al_carrito(request):
     # Si no es POST, redirige a productos
     return redirect('lista-productos-bodega')
 
+@login_required
 def ver_carrito(request):
     if not request.session.session_key:
         request.session.create()
@@ -104,24 +109,24 @@ def ver_carrito(request):
     items = ItemCarrito.objects.filter(carrito=carrito)
     
     total = sum(item.producto.precio * item.cantidad for item in items)
-    # Obtener tipo de cambio USD
+    valor_dolar = obtener_valor_dolar_bcentral()
     total_clp = total
-    tipo_cambio_usd = obtener_tipo_cambio_usd()
+    total_usd = None
 
-    if tipo_cambio_usd:
-        total_usd = total_clp / tipo_cambio_usd
-    else:
-        total_usd = None  # o mostrar mensaje "No disponible"
+    if valor_dolar and valor_dolar != 0:
+        total_usd = Decimal(total) / Decimal(valor_dolar)
+
     context = {
         'items': items,
         'total': total,
         'carrito': carrito,  # Pasamos el objeto carrito completo
         'total_clp': total_clp,
         'total_usd': total_usd,
-        'tipo_cambio_usd': tipo_cambio_usd,
     }
+    
     return render(request, 'carrito/carrito.html', context)
 
+@login_required
 def vaciar_carrito(request):
     session_id = request.session.session_key
     if session_id:

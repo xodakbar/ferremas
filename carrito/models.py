@@ -13,6 +13,7 @@ class ItemCarrito(models.Model):
     cantidad = models.PositiveIntegerField(default=1)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
 
+    
     def subtotal(self):
         return self.producto.precio * self.cantidad
 

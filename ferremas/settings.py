@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'usuarios',
     'productos',
     'rest_framework',
@@ -159,6 +160,13 @@ WEBPAY_CONFIG = {
     'API_KEY': '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C',  # API Key de prueba
     'ENVIRONMENT': 'TEST'  # 'TEST' para desarrollo, 'LIVE' para producción
 }
+import os
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
+LANGUAGE_CODE = 'es-cl'
+USE_L10N = True
+USE_THOUSAND_SEPARATOR = True
+THOUSAND_SEPARATOR = '.'
+DECIMAL_SEPARATOR = ','

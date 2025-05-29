@@ -29,15 +29,20 @@ class Producto(models.Model):
     class Meta:
         ordering = ['nombre']
 
+    @property
+    def precio_en_dolares(self):
+        valor_dolar = obtener_valor_dolar_bcentral()
+        print("Valor del dólar:", valor_dolar)  # <- para ver en consola
+        if valor_dolar:
+            return Decimal(self.precio) / Decimal(valor_dolar)
+        return None
+
 
     def __str__(self):
         return f"{self.nombre} ({self.marca})"
     
-    def precio_en_dolares(self):
-        valor_dolar = obtener_valor_dolar_bcentral()
-        if valor_dolar:
-            return Decimal(self.precio) / Decimal(valor_dolar)
-        return None
+    
+
 
 class PrecioProducto(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='precios')
