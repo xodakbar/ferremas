@@ -105,14 +105,13 @@ def confirmar_pago(request):
 
                 for item in orden.carrito.items.all():
                     producto = item.producto
-                    print(f"Producto: {producto.nombre}, Stock: {producto.stock}, Cantidad comprada: {item.cantidad}, Tipos: {type(producto.stock)}, {type(item.cantidad)}")
-
-                if producto.stock >= item.cantidad:
-                    producto.stock -= item.cantidad
-                    producto.save()
-                else:
-                    return render(request, 'pagos/fallo.html', {
-                'error': f"No hay stock suficiente para el producto {producto.nombre}."})
+                    if producto.stock >= item.cantidad:
+                        producto.stock -= item.cantidad
+                        producto.save()
+                    else:
+                        return render(request, 'pagos/fallo.html', {
+                            'error': f"No hay stock suficiente para el producto {producto.nombre}."
+                        })
 
                 session_id = request.session.session_key
                 if session_id:

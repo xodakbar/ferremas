@@ -1,17 +1,20 @@
 import requests
-from datetime import date
+from datetime import date, timedelta
 
 def obtener_valor_dolar_bcentral():
     user = "jo.romeroc@duocuc.cl"
     password = "Joaco2005"
     fecha_hoy = date.today().strftime("%Y-%m-%d")
 
-    url = (
-        "https://si3.bcentral.cl/SieteRestWS/SieteRestWS.ashx"
-        f"?user={user}&pass={password}"
-        f"&firstdate={fecha_hoy}&lastdate={fecha_hoy}"
-        f"&timeseries=F073.TCO.PRE.Z.D&function=GetSeries"
-    )
+    for i in range(5):
+        fecha = (date.today() - timedelta(days=i)).strftime("%Y-%m-%d")
+
+        url = (
+            "https://si3.bcentral.cl/SieteRestWS/SieteRestWS.ashx"
+            f"?user={user}&pass={password}"
+            f"&firstdate={fecha}&lastdate={fecha}"
+            f"&timeseries=F073.TCO.PRE.Z.D&function=GetSeries"
+        )
 
     response = requests.get(url)
     if response.status_code != 200:

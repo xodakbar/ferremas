@@ -7,16 +7,22 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = ['first_name', 'last_name', 'email', 'password', 'rol']
         extra_kwargs = {
-            'password': {'write_only': True},  # Asegura que la contraseña solo se pueda escribir
+            'password': {'write_only': True},
+            'rol': {'required': False},  # por si no se envía
         }
 
     def create(self, validated_data):
         password = validated_data.pop('password')
         email = validated_data.get('email')
+
         usuario = Usuario(
-        username=email,  # 👈 Esto es lo importante
-        **validated_data
-    )
-        usuario.set_password(password)  # Asegura que la contraseña se guarde de forma segura
+            username=email,
+            email=email,
+            first_name=validated_data.get('first_name'),
+            last_name=validated_data.get('last_name'),
+            rol=validated_data.get('rol', 'cliente')
+        )
+        usuario.set_password(password)
         usuario.save()
         return usuario
+

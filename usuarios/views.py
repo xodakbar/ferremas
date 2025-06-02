@@ -10,6 +10,9 @@ import requests
 from django.contrib.auth import logout
 from django.views.decorators.http import require_POST
 from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):
@@ -17,9 +20,15 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     serializer_class = UsuarioSerializer
 
 
+class RegistroUsuarioView(APIView):
+    def post(self, request):
+        serializer = UsuarioSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'mensaje': 'Usuario creado'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def register_user(request):
-
+def registro_html(request):
     return render(request, 'usuarios/register.html')
 
 def home(request):

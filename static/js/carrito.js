@@ -1,12 +1,11 @@
-// static/js/carrito.js
-
+// Obtener cookie CSRF para Django
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== '') {
     const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + '=')) {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         break;
       }
@@ -15,45 +14,60 @@ function getCookie(name) {
   return cookieValue;
 }
 
-const csrftoken = getCookie('csrftoken');
+function mostrarMensajeEnProducto(contenedor, texto, duracion = 3000) {
+  contenedor.textContent = texto;
+  setTimeout(() => {
+    contenedor.textContent = "";
+  }, duracion);
+}
 
-function agregarAlCarrito(productoId) {
-  fetch("/agregar/", {  // O la URL que tengas configurada
+function agregarAlCarrito(productoId, button) {
+  const productoCard = button.closest('.producto-card');
+  const mensajeContenedor = productoCard.querySelector('.mensaje-carrito');
+
+  const cantidadInput = productoCard.querySelector('.cantidad-input');
+  const cantidad = cantidadInput ? parseInt(cantidadInput.value) : 1;
+
+  if (isNaN(cantidad) || cantidad < 1) {
+    mostrarMensajeEnProducto(mensajeContenedor, "Ingrese una cantidad válida");
+    return;
+  }
+
+  fetch("/agregar/", {  // Cambia por la URL correcta de tu API
     method: "POST",
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': csrftoken,
+      'X-CSRFToken': getCookie('csrftoken'),
     },
     body: JSON.stringify({
       producto_id: productoId,
-      cantidad: 1
+      cantidad: cantidad,
     }),
+    credentials: 'include'  // Para enviar cookies de sesión
   })
-  .then(response => response.json())
-  .then(data => {
-    if (data.error) {
-      alert("Error: " + data.error);
-    } else {
-      alert("Producto agregado al carrito!");
+  .then(response => {
+    if (!response.ok) {
+      // Si el status no es 2xx
+      return response.json().then(data => {
+        throw new Error(data.error || 'Error desconocido');
+      });
     }
+    return response.json();
+  })
+  .then(data => {
+    mostrarMensajeEnProducto(mensajeContenedor, "Producto agregado al carrito!");
+    // Aquí puedes actualizar la UI si quieres
   })
   .catch(error => {
-    alert("Error al agregar el producto: " + error);
+    mostrarMensajeEnProducto(mensajeContenedor, "Error: " + error.message);
   });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.btn-toggle-dolar').forEach(button => {
-      button.addEventListener('click', () => {
-        const precioDolares = button.previousElementSibling;
-        if (!precioDolares) return;
-        if (precioDolares.style.display === 'none' || precioDolares.style.display === '') {
-          precioDolares.style.display = 'block';
-          button.textContent = 'Ocultar precio en USD';
-        } else {
-          precioDolares.style.display = 'none';
-          button.textContent = 'Mostrar precio en USD';
-        }
-      });
+  document.querySelectorAll('.btn-agregar-carrito').forEach(button => {
+    button.addEventListener('click', () => {
+      const productoId = button.dataset.id;
+      agregarAlCarrito(productoId, button);
     });
   });
+});

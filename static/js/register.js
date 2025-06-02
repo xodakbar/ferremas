@@ -1,36 +1,48 @@
-document.getElementById("registerForm").addEventListener("submit", function(event) {
-    event.preventDefault();
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-    const formData = new FormData(this);
+    if (!this.checkValidity()) {
+        e.stopPropagation();
+        this.classList.add('was-validated');
+        return;
+    }
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
     const data = {
-        first_name: formData.get("first_name"),
-        last_name: formData.get("last_name"),
-        email: formData.get("email"),
-        password: formData.get("password"),
-        rol: "cliente"
+        first_name: this.first_name.value,
+        last_name: this.last_name.value,
+        email: this.email.value,
+        password: this.password.value,
+        // si quieres enviar rol, ponlo aquí, sino tu serializer puede asignar default
     };
 
-    fetch("http://127.0.0.1:8000/api/usuarios/", {
-        method: "POST",
+    fetch(this.action, {
+        method: 'POST',
         headers: {
-            "Content-Type": "application/json"
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify(data)
     })
-    .then(async response => {
-        if (!response.ok) {
-            const err = await response.json();
-            throw err;
+    .then(response => {
+      console.log('Status de la respuesta:', response.status);
+        if (response.ok) {
+            document.getElementById('successMessage').style.display = 'block';
+            this.reset();
+            this.classList.remove('was-validated');
+            setTimeout(() => {
+                window.location.href = "{% url 'login' %}";
+            }, 2000);
+        } else {
+            return response.json().then(errData => {
+            console.error('Error de backend:', errData);
+            throw new Error(JSON.stringify(errData));
+            });
         }
-        return response.json();
-    })
-    .then(data => {
-        alert("Usuario registrado con éxito");
-        console.log(data);
-        // Aquí podrías redirigir a login o home
     })
     .catch(error => {
-        console.error("Error:", error);
-        alert("Error al registrar usuario: " + JSON.stringify(error));
+        console.error('Error:', error);
+        alert('Ocurrió un error durante el registro: ' + error.message);
     });
 });

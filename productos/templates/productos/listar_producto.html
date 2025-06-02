@@ -53,6 +53,7 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-primary">
                         <tr>
+                            <th>Imagen</th>
                             <th>Nombre</th>
                             <th>Categoría</th>
                             <th style="width: 160px;">Stock</th>
@@ -62,6 +63,7 @@
                     <tbody>
                         {% for producto in productos %}
                         <tr>
+                            <td><img src="{{ producto.imagen.url }}" class="product-img me-3" alt="" style="max-width: 60px; max-height: 60px; object-fit: cover;"></td>
                             <td>{{ producto.nombre }}</td>
                             <td>{{ producto.categoria }}</td>
                             <td>

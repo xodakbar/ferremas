@@ -11,6 +11,7 @@ from django.shortcuts import redirect, get_object_or_404
 from bancocentral.utils import obtener_valor_dolar_bcentral
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required
+import json
 
 
 class CarritoViewSet(viewsets.ModelViewSet):
@@ -65,12 +66,15 @@ class ItemCarritoViewSet(viewsets.ModelViewSet):
 @csrf_protect
 def agregar_al_carrito(request):
     if request.method == 'POST':
-        producto_id = request.POST.get('producto_id')
-        cantidad = int(request.POST.get('cantidad', 1))
+        try:
+            datos = json.loads(request.body)
+            producto_id = datos.get('producto_id')
+            cantidad = int(datos.get('cantidad', 1))
+        except (json.JSONDecodeError, TypeError, ValueError):
+            return JsonResponse({'error': 'Datos inválidos'}, status=400)
 
         if not producto_id:
-            messages.error(request, 'Debe seleccionar un producto.')
-            return redirect('lista-productos-bodega')  # O la página que corresponda
+            return JsonResponse({'error': 'Debe seleccionar un producto'}, status=400)
 
         producto = get_object_or_404(Producto, pk=producto_id)
 
@@ -91,13 +95,9 @@ def agregar_al_carrito(request):
             item.cantidad += cantidad
             item.save()
 
-        messages.success(request, f'Producto "{producto.nombre}" agregado al carrito.')
+        return JsonResponse({'success': f'Producto "{producto.nombre}" agregado al carrito'})
 
-        # Redirigir a la página del carrito o la página anterior
-        return redirect('ver_carrito')
-
-    # Si no es POST, redirige a productos
-    return redirect('lista-productos-bodega')
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 @login_required
 def ver_carrito(request):

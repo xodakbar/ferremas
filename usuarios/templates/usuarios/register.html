@@ -2,11 +2,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Registrar Usuario</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
     <style>
         body {
             background-color: #f8f9fa;
@@ -37,136 +37,143 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="text-center mb-0">Registro de Usuario</h3>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white position-relative">
+                    <h3 class="text-center mb-0">Registro de Usuario</h3>
+                    <a href="{% url 'home' %}" class="btn btn-outline-light position-absolute top-0 start-0 m-3" title="Volver al menú">
+                        <i class="bi bi-house-door-fill"></i>
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    <div id="successMessage" class="alert alert-success success-message mb-4" role="alert" aria-live="polite" aria-atomic="true">
+                        <i class="bi bi-check-circle-fill me-2"></i> ¡Registro exitoso! Redirigiendo...
                     </div>
-                    <div class="card-body p-4">
-                        <!-- Mensaje de éxito (oculto inicialmente) -->
-                        <div id="successMessage" class="alert alert-success success-message mb-4">
-                            <i class="bi bi-check-circle-fill me-2"></i>
-                            ¡Registro exitoso! Redirigiendo...
+
+                    <form method="POST" id="registerForm" novalidate action="/api/register/">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="first_name" class="form-label">Nombre</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required />
+                                <div class="invalid-feedback">Por favor ingresa tu nombre.</div>
+                            </div>
                         </div>
 
-                        <!-- Formulario con protección CSRF -->
-                        <form method="POST" action="{% url 'register_user' %}" id="registerForm" novalidate>
-                            {% csrf_token %} 
-                            
-                            <div class="mb-3">
-                                <label for="first_name" class="form-label">Nombre</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
-                                    <input type="text" class="form-control" id="first_name" name="first_name" required>
-                                </div>
+                        <div class="mb-3">
+                            <label for="last_name" class="form-label">Apellido</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-badge-fill"></i></span>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required />
+                                <div class="invalid-feedback">Por favor ingresa tu apellido.</div>
                             </div>
-                            
-                            <div class="mb-3">
-                                <label for="last_name" class="form-label">Apellido</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-person-badge-fill"></i></span>
-                                    <input type="text" class="form-control" id="last_name" name="last_name" required>
-                                </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo Electrónico</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                                <input type="email" class="form-control" id="email" name="email" required />
+                                <div class="invalid-feedback">Por favor ingresa un correo válido.</div>
                             </div>
-                            
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Correo Electrónico</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
-                                    <input type="email" class="form-control" id="email" name="email" required>
-                                </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" required minlength="8" />
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Mostrar/Ocultar contraseña">
+                                    <i class="bi bi-eye-fill"></i>
+                                </button>
+                                <div class="invalid-feedback">La contraseña debe tener mínimo 8 caracteres.</div>
                             </div>
-                            
-                            <div class="mb-4">
-                                <label for="password" class="form-label">Contraseña</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                                    <input type="password" class="form-control" id="password" name="password" required>
-                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                        <i class="bi bi-eye-fill"></i>
-                                    </button>
-                                </div>
-                                <div class="form-text">Mínimo 8 caracteres</div>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
-                                <i class="bi bi-person-plus-fill me-2"></i>Registrarse
-                            </button>
-                            
-                            <div class="text-center">
-                                <a href="{% url 'login' %}" class="text-decoration-none">
-                                    ¿Ya tienes cuenta? Inicia sesión
-                                </a>
-                            </div>
-                        </form>
-                    </div>
+                            <div class="form-text">Mínimo 8 caracteres</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                            <i class="bi bi-person-plus-fill me-2"></i>Registrarse
+                        </button>
+
+                        <div class="text-center">
+                            <a href="{% url 'login' %}" class="text-decoration-none">
+                                ¿Ya tienes cuenta? Inicia sesión
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Mostrar/ocultar contraseña
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const password = document.getElementById('password');
-            const icon = this.querySelector('i');
-            if (password.type === 'password') {
-                password.type = 'text';
-                icon.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
-            } else {
-                password.type = 'password';
-                icon.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
-            }
-        });
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Mostrar/ocultar contraseña
+    document.getElementById('togglePassword').addEventListener('click', () => {
+        const password = document.getElementById('password');
+        const icon = document.getElementById('togglePassword').querySelector('i');
+        if (password.type === 'password') {
+            password.type = 'text';
+            icon.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
+        } else {
+            password.type = 'password';
+            icon.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
+        }
+    });
 
-        // Manejo del formulario con CSRF
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Validación básica
-            if (!this.checkValidity()) {
-                e.stopPropagation();
-                this.classList.add('was-validated');
-                return;
-            }
-            
-            // Obtener token CSRF
-            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            
-            // Enviar datos
-            fetch(this.action, {
+    // Manejo del formulario con CSRF y JSON
+    document.getElementById('registerForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        if (!this.checkValidity()) {
+            e.stopPropagation();
+            this.classList.add('was-validated');
+            return;
+        }
+
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const data = {
+            first_name: this.first_name.value.trim(),
+            last_name: this.last_name.value.trim(),
+            email: this.email.value.trim(),
+            password: this.password.value
+        };
+
+        try {
+            const response = await fetch(this.action, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrftoken,
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                 },
-                body: new URLSearchParams(new FormData(this))
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Mostrar mensaje de éxito
-                    document.getElementById('successMessage').style.display = 'block';
-                    
-                    // Limpiar formulario
-                    this.reset();
-                    this.classList.remove('was-validated');
-                    
-                    // Redirigir después de 2 segundos
-                    setTimeout(() => {
-                        window.location.href = "{% url 'login' %}";
-                    }, 2000);
-                } else {
-                    throw new Error('Error en el registro');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Ocurrió un error durante el registro');
+                body: JSON.stringify(data)
             });
-        });
-    </script>
+
+            if (response.ok) {
+                document.getElementById('successMessage').style.display = 'block';
+                this.reset();
+                this.classList.remove('was-validated');
+                setTimeout(() => {
+                    window.location.href = "{% url 'login' %}";
+                }, 2000);
+            } else {
+                const errorData = await response.json();
+                let message = 'Error en el registro.';
+                if (errorData && typeof errorData === 'object') {
+                    message += '\n' + JSON.stringify(errorData, null, 2);
+                }
+                alert(message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Ocurrió un error durante el registro.');
+        }
+    });
+</script>
 </body>
 </html>
