@@ -32,10 +32,7 @@
 
     <div class="collapse navbar-collapse" id="navbarContent">
       <!-- Buscador -->
-      <form class="d-flex mx-auto w-50" role="search" method="GET" action="{% url 'lista-productos-bodega' %}">
-        <input class="form-control me-2" type="search" name="q" placeholder="Buscar productos..." aria-label="Buscar productos" />
-        <button class="btn btn-outline-light" type="submit">Buscar</button>
-      </form>
+
 
       <!-- Opciones de usuario -->
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
@@ -154,6 +151,7 @@
   body {
     background-image: url("{% static 'images/madera.jpg' %}");
     background-size: cover;
+    
   }
 
   </style>
@@ -167,7 +165,7 @@
   
   <div class="mt-4 d-flex justify-content-center gap-3">
     {% if not request.user.is_authenticated %}
-      <a href="{% url 'registro_html' %}" class="btn btn-outline-secondary px-4">Crear cuenta</a>
+      <a href="{% url 'registro_html' %}" class="btn btn-secondary px-4">Crear cuenta</a>
     {% endif %}
   </div>
 </section>
@@ -199,8 +197,6 @@
    <div class="mensaje-carrito" style="color: green; font-weight: bold; margin-top: 6px; min-height: 20px;"></div>
 
 </div>
-
-
               <p class="text-muted mb-1">Stock: {{ producto.stock }}</p>
               <p class="text-muted precio-dolares" style="display:none;">
                 ≈ ${{ producto.precio_en_dolares|default:"N/A"|floatformat:2 }} USD
@@ -217,10 +213,7 @@
   </div>
 </section>
 
-<!-- Footer -->
-<footer class="bg-dark text-white text-center py-3 mt-5">
-  <p class="mb-0">&copy; 2025 Ferremas - Todos los derechos reservados</p>
-</footer>
+
 
 <script src="{% static 'js/carrito.js' %}"></script>
 
@@ -240,6 +233,9 @@
     });
   });
 </script>
-
+<footer class="bg-dark text-white text-center py-5 mt-3">
+  <p class="mb-1">&copy; 2025 Ferremas - Todos los derechos reservados</p>
+</footer>
 </body>
+
 </html>
