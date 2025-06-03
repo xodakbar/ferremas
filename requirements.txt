@@ -7,3 +7,6 @@ tzdata==2025.2
 dj-database-url==1.0.0
 python-decouple==3.8
 psycopg2-binary==2.9.9
+django-cors-headers>=4.0.0
+transbank>=3.5.0
+requests>=2.31.0
