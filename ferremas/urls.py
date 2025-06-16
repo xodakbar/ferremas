@@ -1,35 +1,46 @@
-"""
-URL configuration for ferremas project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from productos.views import ProductoViewSet,productos_template
-from usuarios.views import UsuarioViewSet, register_user, home, login_view
+from productos.views import ProductoViewSet, lista_productos, agregar_producto,actualizar_stock,editar_producto, eliminar_producto, agregar_categoria, agregar_marca, ProductoCreateAPIView
+from usuarios.views import UsuarioViewSet,RegistroUsuarioView,home, login_view, acceso_denegado,logout_view
+from carrito.views import agregar_al_carrito, ver_carrito, vaciar_carrito
+from django.conf import settings
+from django.conf.urls.static import static
 
 router = DefaultRouter()
-router.register(r'productos', ProductoViewSet)
+router.register(r'productos', ProductoViewSet)  # Corregí el nombre de 'productos' (antes decía 'productos')
 router.register(r'usuarios', UsuarioViewSet)
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('', home, name='home'),  
-    path('registro/', register_user, name='register_user'),
+
+    # URLs para usuarios
+    path('api/', include('usuarios.urls')),
     path('login/', login_view, name='login'),
-    path('productos/', productos_template, name='productos_web'),
-]
+    path('acceso-denegado/', acceso_denegado, name='acceso-denegado'),
+    path('logout/', logout_view, name='logout'),
+    
+    # URLs para productos
+    path('bodega/productos/', lista_productos, name='lista-productos-bodega'),
+    path('bodega/categorias/agregar/', agregar_categoria, name='agregar-categoria'),
+    path('bodega/marcas/agregar/', agregar_marca, name='agregar-marca'),
+    path('bodega/productos/actualizar-stock/<int:producto_id>/', actualizar_stock, name='actualizar-stock'),
+    path('bodega/productos/agregar/', agregar_producto, name='agregar-producto'),
+    path('bodega/productos/editar/<int:producto_id>/', editar_producto, name='editar-producto'),
+    path('productos/eliminar/<int:producto_id>/', eliminar_producto, name='eliminar-producto'),
+
+    path('api/productos/', ProductoCreateAPIView.as_view(), name='api-productos'),
+
+    #URLs para carrito
+    path('agregar/', agregar_al_carrito, name='agregar_al_carrito'),
+    path('carrito/', ver_carrito, name='ver_carrito'),
+    path('carrito/vaciar/', vaciar_carrito, name='vaciar_carrito'),
+
+    #URLs para WebPay
+    
+    path('pagos/', include('pagos.urls')),
+
+    
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

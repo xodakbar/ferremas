@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Pago</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: none;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+        }
+        .btn-webpay {
+            background-color: #0099CC;
+            color: white;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-webpay:hover {
+            background-color: #0077A3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .product-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">
+                                <i class="bi bi-cart-check"></i> Confirmación de Compra
+                            </h3>
+                            <span class="badge bg-primary">Orden #{{ orden.buy_order }}</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th class="text-center">Cantidad</th>
+                                        <th class="text-end">Precio Unitario</th>
+                                        <th class="text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if item.producto.imagen %}
+                                                <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}" class="product-img me-3">
+                                                {% endif %}
+                                                <div>
+                                                    <h6 class="mb-0">{{ item.producto.nombre }}</h6>
+                                                    <small class="text-muted">SKU: {{ item.producto.codigo }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">{{ item.cantidad }}</td>
+                                        <td class="text-end">${{ item.precio|floatformat:2 }}</td>
+                                        <td class="text-end">${{ item.subtotal|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot class="table-active">
+                                    <tr>
+                                        <th colspan="3" class="text-end">Total:</th>
+                                        <th class="text-end">${{ orden.total|floatformat:2 }}</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <div class="border-top pt-4 mt-3">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Serás redirigido a WebPay para completar el pago de forma segura
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'ver_carrito' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Volver al carrito
+                                </a>
+                                
+                                <form action="{{ url_webpay }}?token_ws={{ token }}" method="POST" id="webpay-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-webpay">
+                                        <i class="bi bi-shield-lock"></i> Pagar con WebPay
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Redirección automática opcional después de 5 segundos
+        setTimeout(() => {
+            document.getElementById('webpay-form').submit();
+        }, 5000);
+    </script>
+</body>
+</html>
