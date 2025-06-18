@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 {% load humanize %}
 
 <!DOCTYPE html>
@@ -8,172 +9,171 @@
   <title>Ferremas - Inicio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Tailwind CSS CDN -->
+  <!-- Bootstrap CSS (Offcanvas & componentes) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans">
 
-<!-- Navbar -->
-<nav class="bg-green-800 shadow-md">
-  <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-    <a href="/" class="text-2xl font-bold text-white drop-shadow">Ferremas</a>
-
-    <div class="flex items-center gap-3">
-      {% if request.user.is_authenticated %}
-        <span class="text-white">Hola, {{ request.user.first_name|default:request.user.username }}</span>
-        <form action="{% url 'logout' %}" method="post">
-          {% csrf_token %}
-          <button type="submit" class="bg-white text-green-800 px-3 py-1 rounded hover:bg-green-100">Cerrar sesión</button>
-        </form>
-        {% if request.user.rol == "bodeguero" %}
-          <a href="{% url 'lista-productos-bodega' %}" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Bodega</a>
-        {% endif %}
-        <a href="{% url 'ver_carrito' %}" class="text-yellow-300 text-2xl ml-2">🛒</a>
-      {% else %}
-        <a href="{% url 'login' %}" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Login</a>
-        <a href="{% url 'registro_html' %}" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Registro</a>
-      {% endif %}
-    </div>
-  </div>
-</nav>
-
-<!-- Carrusel mejorado con Tailwind -->
-<section class="relative w-full max-w-6xl mx-auto mt-6">
-  <div id="carousel" class="relative overflow-hidden rounded-lg shadow-lg h-64 md:h-72 bg-white">
-
-    {% for img in imagenes %}
-      <div class="carousel-slide transition-opacity duration-700 ease-in-out opacity-0 absolute inset-0">
-        <div class="flex items-center justify-center w-full h-full bg-white">
-  <img src="{% static 'images/'|add:img %}" alt="Imagen carrusel" class="max-h-60 md:max-h-72 object-contain" />
-</div>
-
-      </div>
-    {% endfor %}
-  </div>
-
-  <!-- Botones SVG -->
-  <div class="absolute top-1/2 w-full flex justify-between transform -translate-y-1/2 px-4 z-10">
-    <button onclick="prevSlide()" class="bg-green-800 bg-opacity-80 hover:bg-opacity-100 p-2 rounded-full shadow">
-      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2"
-           viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M15 18l-6-6 6-6" />
-      </svg>
-    </button>
-    <button onclick="nextSlide()" class="bg-green-800 bg-opacity-80 hover:bg-opacity-100 p-2 rounded-full shadow">
-      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2"
-           viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 6l6 6-6 6" />
-      </svg>
-    </button>
-  </div>
-</section>
-
-
-
-<!-- Bienvenida -->
-<section class="text-center py-10">
-  <h1 class="text-4xl md:text-6xl font-extrabold text-green-800 drop-shadow">Tu ferretería de confianza</h1>
-  {% if not request.user.is_authenticated %}
-  <div class="mt-6">
-    <a href="{% url 'registro_html' %}" class="bg-gray-800 text-white px-6 py-3 rounded hover:bg-gray-700">
-      Crear cuenta
-    </a>
-  </div>
-  {% endif %}
-</section>
-
-<!-- Productos -->
-<section class="container mx-auto px-4 py-8">
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    {% for producto in productos %}
-  {% if producto.stock > 0 %}
-    <div class="bg-white rounded-lg shadow hover:shadow-lg overflow-hidden">
-      <div class="p-4">
-        {% if producto.imagen %}
-          <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" class="w-full h-48 object-contain mb-4" />
-        {% else %}
-          <p class="text-gray-500">No hay imagen disponible</p>
-        {% endif %}
-        <h5 class="text-xl font-semibold text-green-800">{{ producto.nombre }}</h5>
-        <p class="text-sm text-gray-500">Marca: {{ producto.marca.nombre }}</p>
-        <p class="text-lg font-bold text-black">${{ producto.precio|floatformat:0|intcomma }}</p>
-
-        <div class="flex items-center gap-2 mt-2">
-          <input type="number" value="1" min="1" class="border rounded w-16 text-center" />
-          <button data-id="{{ producto.id }}" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 btn-agregar-carrito">
-            Agregar al carrito
+  <!-- Navbar -->
+  <nav class="bg-green-800 shadow-md">
+    <div class="container mx-auto px-4 py-5 flex items-center justify-between">
+      <a href="/" class="text-2xl font-bold text-white drop-shadow">Ferremas</a>
+      <div class="flex items-center gap-3">
+        {% if request.user.is_authenticated %}
+          <span class="text-white">Hola, {{ request.user.first_name|default:request.user.username }}</span>
+          <form action="{% url 'logout' %}" method="post" class="inline">{% csrf_token %}
+            <button type="submit" class="bg-white text-green-800 px-3 py-1 rounded hover:bg-green-100">Cerrar sesión</button>
+          </form>
+          {% if request.user.rol == "bodeguero" %}
+            <a href="{% url 'lista-productos-bodega' %}" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Bodega</a>
+          {% endif %}
+          <!-- Botón Offcanvas -->
+          <button class="btn btn-link text-yellow-300 text-2xl ml-2" 
+                  type="button" 
+                  data-bs-toggle="offcanvas" 
+                  data-bs-target="#offcanvasCarrito" 
+                  aria-controls="offcanvasCarrito"
+                  title="Ver carrito">
+            🛒
           </button>
-        </div>
-
-        <p class="mt-1 text-sm text-gray-500">Stock: {{ producto.stock }}</p>
-        <p class="hidden text-sm text-gray-600 precio-dolares">≈ ${{ producto.precio_en_dolares|default:"N/A"|floatformat:2 }} USD</p>
-        <button class="btn-toggle-dolar text-sm text-blue-500 mt-2 hover:underline">
-          Mostrar precio en USD
-        </button>
+        {% else %}
+          <a href="{% url 'login' %}" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Login</a>
+          <a href="{% url 'registro_html' %}" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Registro</a>
+        {% endif %}
       </div>
     </div>
-  {% endif %}
-{% endfor %}
+  </nav>
+
+  <!-- Carrusel -->
+  <section class="relative w-full max-w-6xl mx-auto mt-6">
+    <div id="carousel" class="relative overflow-hidden rounded-lg shadow-lg h-64 md:h-72">
+      {% for img in imagenes %}
+        <div class="carousel-slide absolute inset-0 transition-opacity duration-700 ease-in-out opacity-0">
+          <div class="flex items-center justify-center w-full h-full bg-white">
+            <!-- **Aquí** construimos la URL tal cual Django espera -->
+            <img src="{% static 'images/'|add:img %}"
+                 alt="Carrusel {{ forloop.counter }}"
+                 class="max-h-60 md:max-h-72 object-contain" />
+          </div>
+        </div>
+      {% endfor %}
+
+      <!-- Flecha Anterior -->
+      <button onclick="prevSlide()" aria-label="Anterior"
+              class="absolute left-2 top-1/2 -translate-y-1/2 bg-green-800 bg-opacity-75 hover:bg-opacity-100 p-2 rounded-full z-10">
+        <i class="bi bi-chevron-left text-white"></i>
+      </button>
+      <!-- Flecha Siguiente -->
+      <button onclick="nextSlide()" aria-label="Siguiente"
+              class="absolute right-2 top-1/2 -translate-y-1/2 bg-green-800 bg-opacity-75 hover:bg-opacity-100 p-2 rounded-full z-10">
+        <i class="bi bi-chevron-right text-white"></i>
+      </button>
+    </div>
+  </section>
+
+  <!-- Productos -->
+  <section class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {% for producto in productos %}
+        {% if producto.stock > 0 %}
+          <div class="bg-white rounded-lg shadow hover:shadow-lg overflow-hidden">
+            <div class="p-4 producto-card">
+              {% if producto.imagen %}
+                <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" class="w-full h-48 object-contain mb-4" />
+              {% endif %}
+              <h5 class="text-xl font-semibold text-green-800">{{ producto.nombre }}</h5>
+              <p class="text-sm text-gray-500">Marca: {{ producto.marca.nombre }}</p>
+              <p class="text-lg font-bold text-black">${{ producto.precio|floatformat:0|intcomma }}</p>
+
+              <div class="flex items-center gap-2 mt-2">
+                <input type="number" value="1" min="1" class="cantidad-input border rounded w-16 text-center" />
+                <button data-id="{{ producto.id }}" class="btn-agregar-carrito bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
+                  Agregar al carrito
+                </button>
+              </div>
+              <div class="mensaje-carrito text-sm text-green-700 mt-2 min-h-[1rem]"></div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Offcanvas del carrito -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCarrito" aria-labelledby="offcanvasCarritoLabel">
+    <div class="offcanvas-header">
+      <h5 id="offcanvasCarritoLabel" class="offcanvas-title">
+        <i class="bi bi-cart3 me-2"></i>Tu Carrito
+      </h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div id="contenedorCarrito">
+        <p class="text-center text-gray-500">Cargando carrito…</p>
+      </div>
+    </div>
   </div>
-  {% if productos|length == 0 %}
-    <p class="text-center text-gray-500">No hay productos disponibles en este momento.</p>
-  {% endif %}
-  </div>
-</section>
 
-<script src="{% static 'js/carrito.js' %}"></script>
+  <!-- Scripts -->
 
-<script>
-  document.querySelectorAll('.btn-toggle-dolar').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const dolarText = btn.previousElementSibling;
-      if (dolarText.style.display === 'none' || dolarText.classList.contains('hidden')) {
-        dolarText.classList.remove('hidden');
-        btn.textContent = 'Ocultar precio en USD';
-      } else {
-        dolarText.classList.add('hidden');
-        btn.textContent = 'Mostrar precio en USD';
-      }
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Inicialización del Offcanvas
+    document.getElementById('offcanvasCarrito')
+      .addEventListener('show.bs.offcanvas', () => {
+        fetch("{% url 'ver_carrito_ajax' %}")
+          .then(r => r.text())
+          .then(html => document.getElementById('contenedorCarrito').innerHTML = html)
+          .catch(() => document.getElementById('contenedorCarrito').innerHTML =
+            '<p class="text-red-500">Error cargando el carrito.</p>');
+      });
+
+    // Carrusel
+    const slides = document.querySelectorAll('.carousel-slide');
+    let current = 0;
+    function show(i) {
+      slides.forEach((s, idx) => {
+        s.style.opacity = idx === i ? '1' : '0';
+        s.style.position = idx === i ? 'relative' : 'absolute';
+      });
+    }
+    function nextSlide() { current = (current + 1) % slides.length; show(current); }
+    function prevSlide() { current = (current - 1 + slides.length) % slides.length; show(current); }
+
+    // Arranca
+    show(0);
+    setInterval(nextSlide, 4000);
+  </script>
+
+  <!-- 1. Bootstrap Bundle (incluye Offcanvas) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- 2. Inicializar carga AJAX del Offcanvas -->
+  <script>
+    const offcanvasEl = document.getElementById('offcanvasCarrito');
+    offcanvasEl.addEventListener('show.bs.offcanvas', () => {
+      fetch("{% url 'ver_carrito_ajax' %}")
+        .then(r => r.text())
+        .then(html => {
+          document.getElementById('contenedorCarrito').innerHTML = html;
+        })
+        .catch(() => {
+          document.getElementById('contenedorCarrito').innerHTML =
+            '<p class="text-red-500">Error cargando el carrito.</p>';
+        });
     });
-  });
-</script>
+  </script>
+
+  <!-- 3. Lógica de “Agregar al carrito” -->
+  <script src="{% static 'js/carrito.js' %}"></script>
 
 
-
-<script>
-  const slides = document.querySelectorAll('.carousel-slide');
-  let currentSlide = 0;
-
-  function showSlide(index) {
-    slides.forEach((slide, i) => {
-      slide.style.opacity = i === index ? '1' : '0';
-      slide.style.position = i === index ? 'relative' : 'absolute';
-    });
-  }
-
-  function nextSlide() {
-    currentSlide = (currentSlide + 1) % slides.length;
-    showSlide(currentSlide);
-  }
-
-  function prevSlide() {
-    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-    showSlide(currentSlide);
-  }
-
-  setInterval(nextSlide, 4000);
-
-  document.addEventListener('DOMContentLoaded', () => {
-    showSlide(currentSlide);
-  });
-</script>
-
-
-
-
-<footer class="bg-gray-800 text-white text-center py-5 mt-8">
-  <p class="mb-0">&copy; 2025 Ferremas - Todos los derechos reservados</p>
-</footer>
 
 </body>
 </html>

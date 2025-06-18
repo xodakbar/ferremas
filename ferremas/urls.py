@@ -3,7 +3,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from productos.views import ProductoViewSet, lista_productos, agregar_producto,actualizar_stock,editar_producto, eliminar_producto, agregar_categoria, agregar_marca, ProductoCreateAPIView
 from usuarios.views import UsuarioViewSet,RegistroUsuarioView,home, login_view, acceso_denegado,logout_view
-from carrito.views import agregar_al_carrito, ver_carrito, vaciar_carrito
+from carrito.views import agregar_al_carrito, ver_carrito, vaciar_carrito, ver_carrito_ajax
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -37,6 +37,8 @@ urlpatterns = [
     path('agregar/', agregar_al_carrito, name='agregar_al_carrito'),
     path('carrito/', ver_carrito, name='ver_carrito'),
     path('carrito/vaciar/', vaciar_carrito, name='vaciar_carrito'),
+    path('ver_carrito_ajax/', ver_carrito_ajax, name='ver_carrito_ajax'),
+    
 
     #URLs para WebPay
     

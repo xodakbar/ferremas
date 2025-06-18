@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.response import Response
 from .models import Carrito, ItemCarrito
 from .serializers import CarritoSerializer, ItemCarritoSerializer
@@ -6,12 +6,14 @@ from productos.models import Producto
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render,redirect
-from django.contrib import messages
-from django.shortcuts import redirect, get_object_or_404
+from django.template.loader import render_to_string
+from django.http import HttpResponse
 from bancocentral.utils import obtener_valor_dolar_bcentral
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required
 import json
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
 
 
 class CarritoViewSet(viewsets.ModelViewSet):
@@ -126,6 +128,41 @@ def ver_carrito(request):
     }
     
     return render(request, 'carrito/carrito.html', context)
+
+@login_required
+def ver_carrito_ajax(request):
+    # 1) Asegurar que haya session_key
+    if not request.session.session_key:
+        request.session.create()
+    session_id = request.session.session_key
+
+    # 2) Obtener carrito e ítems
+    carrito, _ = Carrito.objects.get_or_create(session_id=session_id)
+    items = ItemCarrito.objects.filter(carrito=carrito)
+
+    # 3) Calcular total en CLP
+    total = sum(item.producto.precio * item.cantidad for item in items)
+
+    # 4) Intentar convertir a USD, si falla usar None
+    try:
+        valor_dolar = obtener_valor_dolar_bcentral()
+        total_usd = (Decimal(total) / Decimal(valor_dolar)) if valor_dolar else None
+    except Exception:
+        total_usd = None
+
+    # 5) Renderizar el partial con EXACTA ruta 'carrito/_contenido_carrito.html'
+    html = render_to_string(
+        'carrito/_contenido_carrito.html',
+        {
+            'items':      items,
+            'total':      total,
+            'total_usd':  total_usd,
+            'carrito':    carrito,
+        },
+        request=request
+    )
+
+    return HttpResponse(html)
 
 @login_required
 def vaciar_carrito(request):
