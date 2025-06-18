@@ -2,178 +2,141 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Registrar Usuario</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-    <style>
-        body {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registrar Usuario</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ferreverde: '#198754',
+          }
         }
-        .card {
-            border-radius: 15px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-        }
-        .form-control:focus {
-            border-color: #80bdff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
-        .btn-primary {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-        .success-message {
-            display: none;
-            animation: fadeIn 0.5s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    </style>
+      }
+    }
+  </script>
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in-up {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+  </style>
 </head>
-<body>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white position-relative">
-                    <h3 class="text-center mb-0">Registro de Usuario</h3>
-                    <a href="{% url 'home' %}" class="btn btn-outline-light position-absolute top-0 start-0 m-3" title="Volver al menú">
-                        <i class="bi bi-house-door-fill"></i>
-                    </a>
-                </div>
-                <div class="card-body p-4">
-                    <div id="successMessage" class="alert alert-success success-message mb-4" role="alert" aria-live="polite" aria-atomic="true">
-                        <i class="bi bi-check-circle-fill me-2"></i> ¡Registro exitoso! Redirigiendo...
-                    </div>
+<body class="bg-gradient-to-br from-white to-gray-100 min-h-screen flex items-center justify-center relative">
 
-                    <form method="POST" id="registerForm" novalidate action="/api/register/">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="first_name" class="form-label">Nombre</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
-                                <input type="text" class="form-control" id="first_name" name="first_name" required />
-                                <div class="invalid-feedback">Por favor ingresa tu nombre.</div>
-                            </div>
-                        </div>
+<!-- Botón de volver al home -->
+<a href="{% url 'home' %}" class="absolute top-6 left-6 bg-ferreverde text-white hover:bg-green-800 p-2 rounded-full shadow-lg transition duration-200" title="Volver al inicio">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9.75L12 3l9 6.75M4.5 10.5v9a1.5 1.5 0 001.5 1.5H9v-6h6v6h3a1.5 1.5 0 001.5-1.5v-9" />
+  </svg>
+</a>
 
-                        <div class="mb-3">
-                            <label for="last_name" class="form-label">Apellido</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-person-badge-fill"></i></span>
-                                <input type="text" class="form-control" id="last_name" name="last_name" required />
-                                <div class="invalid-feedback">Por favor ingresa tu apellido.</div>
-                            </div>
-                        </div>
+<!-- Contenedor del formulario -->
+<div class="bg-white border border-green-700 rounded-2xl shadow-xl w-full max-w-md p-8 fade-in-up">
+  <div class="text-center mb-6">
+    <h2 class="text-3xl font-bold tracking-tight text-ferreverde">Crear Cuenta</h2>
+    <p class="text-sm text-gray-600 mt-1">Ingresa tus datos para registrarte</p>
+  </div>
 
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Correo Electrónico</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
-                                <input type="email" class="form-control" id="email" name="email" required />
-                                <div class="invalid-feedback">Por favor ingresa un correo válido.</div>
-                            </div>
-                        </div>
+  <div id="successMessage" class="hidden mb-4 bg-green-100 text-green-700 border border-green-400 px-4 py-3 rounded-lg text-sm">
+    <strong>¡Registro exitoso!</strong> Serás redirigido en un momento...
+  </div>
 
-                        <div class="mb-4">
-                            <label for="password" class="form-label">Contraseña</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                                <input type="password" class="form-control" id="password" name="password" required minlength="8" />
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Mostrar/Ocultar contraseña">
-                                    <i class="bi bi-eye-fill"></i>
-                                </button>
-                                <div class="invalid-feedback">La contraseña debe tener mínimo 8 caracteres.</div>
-                            </div>
-                            <div class="form-text">Mínimo 8 caracteres</div>
-                        </div>
+  <form method="POST" id="registerForm" action="/api/register/" novalidate class="space-y-5">
+    {% csrf_token %}
 
-                        <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
-                            <i class="bi bi-person-plus-fill me-2"></i>Registrarse
-                        </button>
-
-                        <div class="text-center">
-                            <a href="{% url 'login' %}" class="text-decoration-none">
-                                ¿Ya tienes cuenta? Inicia sesión
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+    <div>
+      <label for="first_name" class="block mb-1 text-sm font-medium text-green-800">Nombre</label>
+      <input type="text" id="first_name" name="first_name" required
+             class="w-full rounded-md bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-ferreverde px-4 py-2" />
     </div>
+
+    <div>
+      <label for="last_name" class="block mb-1 text-sm font-medium text-green-800">Apellido</label>
+      <input type="text" id="last_name" name="last_name" required
+             class="w-full rounded-md bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-ferreverde px-4 py-2" />
+    </div>
+
+    <div>
+      <label for="email" class="block mb-1 text-sm font-medium text-green-800">Correo Electrónico</label>
+      <input type="email" id="email" name="email" required
+             class="w-full rounded-md bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-ferreverde px-4 py-2" />
+    </div>
+
+    <div>
+      <label for="password" class="block mb-1 text-sm font-medium text-green-800">Contraseña</label>
+      <div class="relative">
+        <input type="password" id="password" name="password" required minlength="8"
+               class="w-full rounded-md bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-ferreverde px-4 py-2 pr-10" />
+        <button type="button" id="togglePassword" class="absolute right-3 top-2.5 text-gray-500 hover:text-green-700" aria-label="Mostrar contraseña">
+          👁
+        </button>
+      </div>
+      <p class="text-xs text-gray-500 mt-1">Debe tener al menos 8 caracteres</p>
+    </div>
+
+    <button type="submit"
+            class="w-full bg-ferreverde hover:bg-green-800 text-white font-semibold py-2 rounded-md shadow-md transition duration-200">
+      Registrarse
+    </button>
+
+    <div class="text-center mt-4">
+      <a href="{% url 'login' %}" class="text-sm text-ferreverde hover:underline">¿Ya tienes cuenta? Inicia sesión</a>
+    </div>
+  </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Mostrar/ocultar contraseña
-    document.getElementById('togglePassword').addEventListener('click', () => {
-        const password = document.getElementById('password');
-        const icon = document.getElementById('togglePassword').querySelector('i');
-        if (password.type === 'password') {
-            password.type = 'text';
-            icon.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
-        } else {
-            password.type = 'password';
-            icon.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
-        }
-    });
+  document.getElementById('togglePassword').addEventListener('click', () => {
+    const passwordInput = document.getElementById('password');
+    passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+  });
 
-    // Manejo del formulario con CSRF y JSON
-    document.getElementById('registerForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
+  document.getElementById('registerForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const data = {
+      first_name: this.first_name.value.trim(),
+      last_name: this.last_name.value.trim(),
+      email: this.email.value.trim(),
+      password: this.password.value
+    };
 
-        if (!this.checkValidity()) {
-            e.stopPropagation();
-            this.classList.add('was-validated');
-            return;
-        }
+    if (!this.checkValidity()) {
+      this.reportValidity();
+      return;
+    }
 
-        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    try {
+      const response = await fetch(this.action, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
 
-        const data = {
-            first_name: this.first_name.value.trim(),
-            last_name: this.last_name.value.trim(),
-            email: this.email.value.trim(),
-            password: this.password.value
-        };
-
-        try {
-            const response = await fetch(this.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrftoken,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (response.ok) {
-                document.getElementById('successMessage').style.display = 'block';
-                this.reset();
-                this.classList.remove('was-validated');
-                setTimeout(() => {
-                    window.location.href = "{% url 'login' %}";
-                }, 2000);
-            } else {
-                const errorData = await response.json();
-                let message = 'Error en el registro.';
-                if (errorData && typeof errorData === 'object') {
-                    message += '\n' + JSON.stringify(errorData, null, 2);
-                }
-                alert(message);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Ocurrió un error durante el registro.');
-        }
-    });
+      if (response.ok) {
+        document.getElementById('successMessage').classList.remove('hidden');
+        this.reset();
+        setTimeout(() => {
+          window.location.href = "{% url 'login' %}";
+        }, 2000);
+      } else {
+        const errorData = await response.json();
+        alert("Error al registrar:\n" + JSON.stringify(errorData, null, 2));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error de red al registrar.");
+    }
+  });
 </script>
 </body>
 </html>
