@@ -42,7 +42,6 @@ def home(request):
         'cemento.png',
         'destornillador.png',
         'herramienta_electrica.png',
-        'lijadora.png',
         'llave.png',
         'materiales_de_construccion.png',
         'sierra_electrica.png',
