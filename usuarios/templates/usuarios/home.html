@@ -52,24 +52,21 @@
 
   <!-- Carrusel -->
   <section class="relative w-full max-w-6xl mx-auto mt-6">
-    <div id="carousel" class="relative overflow-hidden rounded-lg shadow-lg h-64 md:h-72">
+    <div id="carousel" class="relative overflow-hidden rounded-lg shadow-lg h-64 md:h-72 bg-gray-100">
       {% for img in imagenes %}
-        <div class="carousel-slide absolute inset-0 transition-opacity duration-700 ease-in-out opacity-0">
-          <div class="flex items-center justify-center w-full h-full bg-white">
-            <!-- **Aquí** construimos la URL tal cual Django espera -->
-            <img src="{% static 'images/'|add:img %}"
-                 alt="Carrusel {{ forloop.counter }}"
-                 class="max-h-60 md:max-h-72 object-contain" />
-          </div>
+        <div class="carousel-slide absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-in-out opacity-0">
+          <img 
+            src="{% static 'images/'|add:img %}" 
+            alt="Slide {{ forloop.counter }}" 
+            class="max-h-60 md:max-h-72 object-contain" />
         </div>
       {% endfor %}
 
-      <!-- Flecha Anterior -->
+      <!-- Flechas -->
       <button onclick="prevSlide()" aria-label="Anterior"
               class="absolute left-2 top-1/2 -translate-y-1/2 bg-green-800 bg-opacity-75 hover:bg-opacity-100 p-2 rounded-full z-10">
         <i class="bi bi-chevron-left text-white"></i>
       </button>
-      <!-- Flecha Siguiente -->
       <button onclick="nextSlide()" aria-label="Siguiente"
               class="absolute right-2 top-1/2 -translate-y-1/2 bg-green-800 bg-opacity-75 hover:bg-opacity-100 p-2 rounded-full z-10">
         <i class="bi bi-chevron-right text-white"></i>
