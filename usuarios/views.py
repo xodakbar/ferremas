@@ -35,7 +35,19 @@ def home(request):
     resp = requests.get('http://127.0.0.1:8000/api/productos/')
     productos = resp.json() if resp.status_code == 200 else []
 
-    return render(request, 'usuarios/home.html', {'productos': productos ,'MEDIA_URL': settings.MEDIA_URL})
+    # Lista de imágenes para el carrusel
+    imagenes = [
+        'martillo.png', 'arena.png', 'cemento.png', 'destornillador.png',
+        'herramienta_electrica.png', 'lijadora.png', 'llave.png',
+        'materiales_de_construccion.png', 'sierra_electrica.png',
+        'casco.png', 'tornillos.png'
+    ]
+
+    return render(request, 'usuarios/home.html', {
+        'productos': productos,
+        'imagenes': imagenes,
+        'MEDIA_URL': settings.MEDIA_URL
+    })
 
 
 def login_view(request):
