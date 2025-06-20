@@ -9,15 +9,16 @@
   <title>Ferremas - Inicio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Bootstrap CSS (Offcanvas & componentes) -->
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
 
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS (DESPUÉS de Bootstrap CSS) -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100 font-sans">
 
   <!-- Navbar -->
@@ -50,29 +51,45 @@
     </div>
   </nav>
 
-  <!-- Carrusel -->
-  <section class="relative w-full max-w-6xl mx-auto mt-6">
-    <div id="carousel" class="relative overflow-hidden rounded-lg shadow-lg h-64 md:h-72 bg-gray-100">
-      {% for img in imagenes %}
-        <div class="carousel-slide absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-in-out opacity-0">
-          <img 
-            src="{% static 'images/'|add:img %}" 
-            alt="Slide {{ forloop.counter }}" 
-            class="max-h-60 md:max-h-72 object-contain" />
-        </div>
-      {% endfor %}
 
-      <!-- Flechas -->
-      <button onclick="prevSlide()" aria-label="Anterior"
-              class="absolute left-2 top-1/2 -translate-y-1/2 bg-green-800 bg-opacity-75 hover:bg-opacity-100 p-2 rounded-full z-10">
-        <i class="bi bi-chevron-left text-white"></i>
-      </button>
-      <button onclick="nextSlide()" aria-label="Siguiente"
-              class="absolute right-2 top-1/2 -translate-y-1/2 bg-green-800 bg-opacity-75 hover:bg-opacity-100 p-2 rounded-full z-10">
-        <i class="bi bi-chevron-right text-white"></i>
-      </button>
+  <!-- Carrusel -->
+<section class="relative w-full max-w-6xl mx-auto mt-6">
+  <div id="carousel" class="relative overflow-hidden rounded-lg shadow-lg h-64 md:h-80 bg-gray-100">
+    {% for img in imagenes %}
+      <div class="carousel-slide absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-in-out {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %}">
+        <img 
+          src="{% static 'images/'|add:img %}" 
+          alt="Slide {{ forloop.counter }}" 
+          class="w-auto h-3/4 max-h-60 md:max-h-72 object-contain" />
+      </div>
+    {% endfor %}
+    <!-- Flechas -->
+    <button id="btnPrev" aria-label="Anterior"
+      class="absolute left-2 top-1/2 -translate-y-1/2 bg-green-800 bg-opacity-75 hover:bg-opacity-100 p-2 rounded-full z-10">
+      <i class="bi bi-chevron-left text-white"></i>
+    </button>
+    <button id="btnNext" aria-label="Siguiente"
+      class="absolute right-2 top-1/2 -translate-y-1/2 bg-green-800 bg-opacity-75 hover:bg-opacity-100 p-2 rounded-full z-10">
+      <i class="bi bi-chevron-right text-white"></i>
+    </button>
+  </div>
+</section>
+
+<!-- Offcanvas del carrito -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCarrito" aria-labelledby="offcanvasCarritoLabel">
+  <div class="offcanvas-header">
+    <h5 id="offcanvasCarritoLabel" class="offcanvas-title">
+      <i class="bi bi-cart3 me-2"></i>Tu Carrito
+    </h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div id="contenedorCarrito">
+      <p class="text-center text-gray-500">Cargando carrito…</p>
     </div>
-  </section>
+  </div>
+</div>
+
 
   <!-- Productos -->
   <section class="container mx-auto px-4 py-8">
@@ -102,73 +119,65 @@
     </div>
   </section>
 
-  <!-- Offcanvas del carrito -->
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCarrito" aria-labelledby="offcanvasCarritoLabel">
-    <div class="offcanvas-header">
-      <h5 id="offcanvasCarritoLabel" class="offcanvas-title">
-        <i class="bi bi-cart3 me-2"></i>Tu Carrito
-      </h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div id="contenedorCarrito">
-        <p class="text-center text-gray-500">Cargando carrito…</p>
-      </div>
-    </div>
-  </div>
 
   <!-- Scripts -->
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // Inicialización del Offcanvas
-    document.getElementById('offcanvasCarrito')
-      .addEventListener('show.bs.offcanvas', () => {
-        fetch("{% url 'ver_carrito_ajax' %}")
-          .then(r => r.text())
-          .then(html => document.getElementById('contenedorCarrito').innerHTML = html)
-          .catch(() => document.getElementById('contenedorCarrito').innerHTML =
-            '<p class="text-red-500">Error cargando el carrito.</p>');
-      });
+<!-- Bootstrap Bundle JS (antes que cualquier script que lo use) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    // Carrusel
-    const slides = document.querySelectorAll('.carousel-slide');
-    let current = 0;
-    function show(i) {
-      slides.forEach((s, idx) => {
-        s.style.opacity = idx === i ? '1' : '0';
-        s.style.position = idx === i ? 'relative' : 'absolute';
-      });
-    }
-    function nextSlide() { current = (current + 1) % slides.length; show(current); }
-    function prevSlide() { current = (current - 1 + slides.length) % slides.length; show(current); }
+<!-- Carrusel y Offcanvas: juntos y SOLO una vez, todo dentro del mismo DOMContentLoaded -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Carrusel
+  const slides = document.querySelectorAll('.carousel-slide');
+  let current = 0;
+  function show(i) {
+    slides.forEach(function(s, idx) {
+      s.style.opacity = idx === i ? '1' : '0';
+      s.style.zIndex = idx === i ? '2' : '1';
+      s.style.position = "absolute";
+    });
+    if (slides[i]) slides[i].style.position = "relative";
+  }
+  function nextSlide() {
+    if (slides.length < 2) return;
+    current = (current + 1) % slides.length;
+    show(current);
+  }
+  function prevSlide() {
+    if (slides.length < 2) return;
+    current = (current - 1 + slides.length) % slides.length;
+    show(current);
+  }
+  show(0);
+  if (slides.length > 1) setInterval(nextSlide, 4000);
+  window.nextSlide = nextSlide;
+  window.prevSlide = prevSlide;
+  document.getElementById('btnPrev')?.addEventListener('click', prevSlide);
+  document.getElementById('btnNext')?.addEventListener('click', nextSlide);
 
-    // Arranca
-    show(0);
-    setInterval(nextSlide, 4000);
-  </script>
-
-  <!-- 1. Bootstrap Bundle (incluye Offcanvas) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- 2. Inicializar carga AJAX del Offcanvas -->
-  <script>
-    const offcanvasEl = document.getElementById('offcanvasCarrito');
-    offcanvasEl.addEventListener('show.bs.offcanvas', () => {
+  // Offcanvas Carrito
+  const offcanvasEl = document.getElementById('offcanvasCarrito');
+  if (offcanvasEl) {
+    offcanvasEl.addEventListener('show.bs.offcanvas', function() {
       fetch("{% url 'ver_carrito_ajax' %}")
-        .then(r => r.text())
-        .then(html => {
+        .then(function(r) { return r.text(); })
+        .then(function(html) {
           document.getElementById('contenedorCarrito').innerHTML = html;
         })
-        .catch(() => {
+        .catch(function() {
           document.getElementById('contenedorCarrito').innerHTML =
             '<p class="text-red-500">Error cargando el carrito.</p>';
         });
     });
-  </script>
+  }
+});
+</script>
+<!-- JS personalizado tuyo (no debe duplicar ningún listener de offcanvas) -->
+<script src="{% static 'js/carrito.js' %}"></script>
 
-  <!-- 3. Lógica de “Agregar al carrito” -->
-  <script src="{% static 'js/carrito.js' %}"></script>
+
+
 
 
 
