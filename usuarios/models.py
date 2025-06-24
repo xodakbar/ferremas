@@ -11,8 +11,11 @@ class Usuario(AbstractUser):
         ('administrador', 'Administrador'),
         ('contador', 'Contador'),
     )
-    rol = models.CharField(max_length=20, choices=ROLES)
+    rol = models.CharField(max_length=20, choices=ROLES, default='cliente')  # 👈 esto asigna cliente por defecto
 
+
+    USERNAME_FIELD = 'username'  # Mantienes el login con username (en este caso, será el email)
+    REQUIRED_FIELDS = ['email']
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
 
