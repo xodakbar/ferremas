@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'carrito',
     'pagos',
     'bancocentral',
+    
+    
 ]
 
 MIDDLEWARE = [
