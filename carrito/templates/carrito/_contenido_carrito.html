@@ -22,6 +22,9 @@
     <span class="text-sm font-semibold text-green-600">
       ${{ item.cantidad|multiply:item.producto.precio|floatformat:0|intcomma }}
     </span>
+    <a href="{% url 'eliminar_producto_carrito' item.producto.id %}" class="text-danger">
+      <i class="bi bi-trash"></i> Eliminar
+    </a>
   </div>
   {% endfor %}
 
@@ -46,6 +49,12 @@
     </form>
   </div>
 </div>
+<form action="{% url 'vaciar_carrito' %}" method="post" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-outline-danger btn-lg">
+                        <i class="bi bi-trash"></i> Vaciar carrito
+                      </button>
+                    </form>
 
 {% else %}
 <div class="flex flex-col items-center justify-center py-8 space-y-2">
@@ -57,3 +66,82 @@
   </a>
 </div>
 {% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  // Vaciar el carrito
+  const vaciarCarritoBtn = document.querySelector('.btn-vaciar-carrito');
+  if (vaciarCarritoBtn) {
+    vaciarCarritoBtn.addEventListener('click', function(e) {
+      e.preventDefault(); // Prevenir la acción predeterminada del formulario
+
+      fetch("{% url 'vaciar_carrito' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        credentials: 'include',  // Asegura que las cookies de sesión se envíen
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.mensaje); // Muestra el mensaje de carrito vacío
+
+        // Actualiza el contenido del carrito en el modal con el mensaje "Tu carrito está vacío"
+        if (data.mensaje === "Tu carrito está vacío") {
+          document.getElementById('contenedorCarrito').innerHTML = `
+            <div class="text-center py-5">
+              <i class="bi bi-cart-x" style="font-size: 3rem; color: #6c757d;"></i>
+              <h3 class="h4 text-muted mb-3">${data.mensaje}</h3>
+              <a href="{% url 'home' %}" class="btn btn-primary">
+                <i class="bi bi-bag"></i> Descubrir productos
+              </a>
+            </div>
+          `;
+        }
+      })
+      .catch(err => console.error('Error al vaciar el carrito:', err));
+    });
+  }
+
+  // Eliminar producto del carrito
+  const eliminarProductoBtns = document.querySelectorAll('.btn-eliminar-producto');
+  eliminarProductoBtns.forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      const productoId = this.getAttribute('data-producto-id');
+
+      fetch(`/eliminar-producto-carrito/${productoId}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        credentials: 'include',  // Asegura que las cookies de sesión se envíen
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.mensaje); // Muestra el mensaje de eliminación
+
+        // Actualiza el contenido del carrito en el modal
+        actualizarCarrito();
+      })
+      .catch(err => console.error('Error al eliminar el producto:', err));
+    });
+  });
+
+  // Función para actualizar el contenido del carrito en el modal
+  function actualizarCarrito() {
+    fetch("{% url 'ver_carrito_ajax' %}")
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('contenedorCarrito').innerHTML = html;
+      })
+      .catch(err => console.error('Error al actualizar el carrito:', err));
+  }
+
+});
+</script>
+

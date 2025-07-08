@@ -177,4 +177,15 @@ def vaciar_carrito(request):
             # carrito.delete()
         except Carrito.DoesNotExist:
             pass
-    return redirect('ver_carrito')  # Redirige a la página del carrito
+    return JsonResponse({'mensaje': 'Tu carrito está vacío'})
+
+@login_required
+def eliminar_producto_carrito(request, producto_id):
+    session_id = request.session.session_key
+    if session_id:
+        carrito = Carrito.objects.get(session_id=session_id)
+        item = get_object_or_404(ItemCarrito, carrito=carrito, producto_id=producto_id)
+        item.delete()  # Elimina el item del carrito
+
+    return JsonResponse({'mensaje': 'Producto eliminado'})
+

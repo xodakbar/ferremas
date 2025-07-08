@@ -112,10 +112,30 @@
                 </button>
               </div>
               <div class="mensaje-carrito text-sm text-green-700 mt-2 min-h-[1rem]"></div>
+              </div>
+              <p class="text-muted mb-1">Stock: {{ producto.stock }}</p>
+
+          <!-- Precio en USD (oculto por defecto) -->
+          <p class="text-muted precio-dolares" style="display:none;">
+            ≈ ${{ producto.precio_en_dolares|default:"N/A"|floatformat:2 }} USD
+          </p>
+
+          <!-- Botón para alternar entre precios -->
+          <button type="button" class="btn btn-secondary btn-sm btn-toggle-dolar mt-2 w-full">
+            Mostrar precio en USD
+          </button>
+            </div>
+          </div>
+        </div>
             </div>
           </div>
         {% endif %}
       {% endfor %}
+    </div>
+    <div>
+       {% if productos|length == 0 %}
+    <p class="text-center text-gray-500">No hay productos disponibles en este momento.</p>
+  {% endif %}
     </div>
   </section>
 
@@ -128,6 +148,20 @@
 <!-- Carrusel y Offcanvas: juntos y SOLO una vez, todo dentro del mismo DOMContentLoaded -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+
+  document.querySelectorAll('.btn-toggle-dolar').forEach(button => {
+    button.addEventListener('click', () => {
+      const precio_en_dolares = button.previousElementSibling;
+      if (!precio_en_dolares) return;
+      if (precio_en_dolares.style.display === 'none') {
+        precio_en_dolares.style.display = 'block';
+        button.textContent = 'Ocultar precio en USD';
+      } else {
+        precio_en_dolares.style.display = 'none';button.textContent = 'Mostrar precio en USD';}
+    });
+  });
+
+
   // Carrusel
   const slides = document.querySelectorAll('.carousel-slide');
   let current = 0;
