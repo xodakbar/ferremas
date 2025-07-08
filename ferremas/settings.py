@@ -55,7 +55,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     
 
 ]
@@ -167,6 +166,10 @@ REST_FRAMEWORK = {
 CSRF_COOKIE_HTTPONLY = False
 
 CORS_ALLOW_ALL_ORIGINS = True  
+
+CSRF_COOKIE_NAME = 'csrftoken'  # Nombre de la cookie CSRF
+CSRF_COOKIE_SECURE = False  # Si no usas HTTPS, esto debe estar en False
+
 
 WEBPAY_CONFIG = {
     'COMMERCE_CODE': '597055555532',  # Código de comercio de prueba

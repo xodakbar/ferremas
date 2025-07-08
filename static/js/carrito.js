@@ -14,6 +14,8 @@ function getCookie(name) {
   return cookieValue;
 }
 
+
+
 function mostrarMensajeEnProducto(contenedor, texto, duracion = 3000) {
   contenedor.textContent = texto;
   setTimeout(() => {
@@ -33,7 +35,7 @@ function agregarAlCarrito(productoId, button) {
     return;
   }
 
-  fetch("/agregar/", {  // Cambia por la URL correcta de tu API
+    fetch("/agregar/", {
     method: "POST",
     headers: {
       'Content-Type': 'application/json',
@@ -43,24 +45,24 @@ function agregarAlCarrito(productoId, button) {
       producto_id: productoId,
       cantidad: cantidad,
     }),
-    credentials: 'include'  // Para enviar cookies de sesión
+    credentials: 'include',  // Esto asegura que las cookies de sesión se envíen
   })
   .then(response => {
-    if (!response.ok) {
-      // Si el status no es 2xx
-      return response.json().then(data => {
-        throw new Error(data.error || 'Error desconocido');
-      });
+    console.log(response.status);  // Revisa el código de estado HTTP
+    if (response.status === 302) {  // Esto es lo que ocurre cuando hay una redirección
+      alert("Debes iniciar sesión primero.");
+      window.location.href = "{% url 'login' %}";  // Redirige al login si no está autenticado
     }
     return response.json();
   })
   .then(data => {
     mostrarMensajeEnProducto(mensajeContenedor, "Producto agregado al carrito!");
-    // Aquí puedes actualizar la UI si quieres
   })
   .catch(error => {
     mostrarMensajeEnProducto(mensajeContenedor, "Error: " + error.message);
   });
+
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -74,6 +74,7 @@ def agregar_al_carrito(request):
             cantidad = int(datos.get('cantidad', 1))
         except (json.JSONDecodeError, TypeError, ValueError):
             return JsonResponse({'error': 'Datos inválidos'}, status=400)
+        
 
         if not producto_id:
             return JsonResponse({'error': 'Debe seleccionar un producto'}, status=400)
