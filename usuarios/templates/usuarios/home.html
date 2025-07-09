@@ -146,7 +146,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Carrusel y Offcanvas: juntos y SOLO una vez, todo dentro del mismo DOMContentLoaded -->
-<script>
+<!-- <script>
 document.addEventListener("DOMContentLoaded", function() {
 
   document.querySelectorAll('.btn-toggle-dolar').forEach(button => {
@@ -188,12 +188,79 @@ document.addEventListener("DOMContentLoaded", function() {
   window.nextSlide = nextSlide;
   window.prevSlide = prevSlide;
   document.getElementById('btnPrev')?.addEventListener('click', prevSlide);
+  document.getElementById('btnNext')?.addEventListener('click', nextSlide); -->
+
+  <!-- // Offcanvas Carrito
+//   const offcanvasEl = document.getElementById('offcanvasCarrito');
+//   if (offcanvasEl) {
+//     offcanvasEl.addEventListener('show.bs.offcanvas', function() {
+//       fetch("{% url 'ver_carrito_ajax' %}")
+//         .then(function(r) { return r.text(); })
+//         .then(function(html) {
+//           document.getElementById('contenedorCarrito').innerHTML = html;
+//         })
+//         .catch(function() {
+//           document.getElementById('contenedorCarrito').innerHTML =
+//             '<p class="text-red-500">Error cargando el carrito.</p>';
+//         });
+//     });
+//   }
+});
+</script> -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // **Alternar entre precios en CLP y USD**
+  document.querySelectorAll('.btn-toggle-dolar').forEach(button => {
+    button.addEventListener('click', () => {
+      const precio_en_dolares = button.previousElementSibling;
+      if (!precio_en_dolares) return;
+      if (precio_en_dolares.style.display === 'none') {
+        precio_en_dolares.style.display = 'block';
+        button.textContent = 'Ocultar precio en USD';
+      } else {
+        precio_en_dolares.style.display = 'none';
+        button.textContent = 'Mostrar precio en USD';
+      }
+    });
+  });
+
+  // **Carrusel**
+  const slides = document.querySelectorAll('.carousel-slide');
+  let current = 0;
+
+  function show(i) {
+    slides.forEach(function(s, idx) {
+      s.style.opacity = idx === i ? '1' : '0';
+      s.style.zIndex = idx === i ? '2' : '1';
+      s.style.position = "absolute";
+    });
+    if (slides[i]) slides[i].style.position = "relative";
+  }
+
+  function nextSlide() {
+    if (slides.length < 2) return;
+    current = (current + 1) % slides.length;
+    show(current);
+  }
+
+  function prevSlide() {
+    if (slides.length < 2) return;
+    current = (current - 1 + slides.length) % slides.length;
+    show(current);
+  }
+
+  show(0);
+  if (slides.length > 1) setInterval(nextSlide, 4000);
+  window.nextSlide = nextSlide;
+  window.prevSlide = prevSlide;
+  document.getElementById('btnPrev')?.addEventListener('click', prevSlide);
   document.getElementById('btnNext')?.addEventListener('click', nextSlide);
 
-  // Offcanvas Carrito
-  const offcanvasEl = document.getElementById('offcanvasCarrito');
-  if (offcanvasEl) {
-    offcanvasEl.addEventListener('show.bs.offcanvas', function() {
+  // **Cargar el carrito cuando se abre el modal**
+  const offcanvasCarrito = document.getElementById('offcanvasCarrito');
+  if (offcanvasCarrito) {
+    offcanvasCarrito.addEventListener('show.bs.offcanvas', function() {
       fetch("{% url 'ver_carrito_ajax' %}")
         .then(function(r) { return r.text(); })
         .then(function(html) {
@@ -205,8 +272,86 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
   }
+
+  // **Vaciar el carrito**
+  const vaciarCarritoBtn = document.querySelector('#btn-vaciar-carrito');
+  if (vaciarCarritoBtn) {
+    vaciarCarritoBtn.addEventListener('click', function(e) {
+      e.preventDefault();  // Prevenir la acción predeterminada del formulario
+
+      // Enviar solicitud AJAX para vaciar el carrito
+      fetch("{% url 'vaciar_carrito' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        credentials: 'include',  // Asegura que las cookies de sesión se envíen
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.mensaje);  // Mostrar mensaje de carrito vacío
+
+        // Actualizar el contenido del carrito en el modal
+        if (data.mensaje === "Tu carrito está vacío") {
+          document.getElementById('contenedorCarrito').innerHTML = `
+            <div class="text-center py-5">
+              <i class="bi bi-cart-x" style="font-size: 3rem; color: #6c757d;"></i>
+              <h3 class="h4 text-muted mb-3">${data.mensaje}</h3>
+              <a href="{% url 'home' %}" class="btn btn-primary">
+                <i class="bi bi-bag"></i> Descubrir productos
+              </a>
+            </div>
+          `;
+        }
+      })
+      .catch(err => console.error('Error al vaciar el carrito:', err));
+    });
+  }
+
+  // **Eliminar un producto del carrito**
+  const eliminarProductoBtns = document.querySelectorAll('.btn-eliminar-producto');
+  eliminarProductoBtns.forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault(); // Prevenir la acción predeterminada del formulario
+
+      const productoId = this.getAttribute('data-producto-id');
+
+      // Hacer una solicitud AJAX para eliminar el producto
+      fetch(`/eliminar-producto-carrito/${productoId}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        credentials: 'include',  // Asegura que las cookies de sesión se envíen
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.mensaje);  // Mostrar mensaje de eliminación
+
+        // Actualizar el contenido del carrito en el modal
+        actualizarCarrito();
+      })
+      .catch(err => console.error('Error al eliminar el producto:', err));
+    });
+  });
+
+  // **Función para actualizar el carrito después de eliminar un producto o vaciarlo**
+  function actualizarCarrito() {
+    fetch("{% url 'ver_carrito_ajax' %}")
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('contenedorCarrito').innerHTML = html;
+      })
+      .catch(err => console.error('Error al actualizar el carrito:', err));
+  }
+
 });
 </script>
+
+
+
 <!-- JS personalizado tuyo (no debe duplicar ningún listener de offcanvas) -->
 <script src="{% static 'js/carrito.js' %}"></script>
 

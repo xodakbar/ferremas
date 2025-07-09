@@ -36,7 +36,7 @@ urlpatterns = [
     #URLs para carrito
     path('agregar/', agregar_al_carrito, name='agregar_al_carrito'),
     path('carrito/', ver_carrito, name='ver_carrito'),
-    path('carrito/vaciar/', vaciar_carrito, name='vaciar_carrito'),
+    path('vaciar-carrito/', vaciar_carrito, name='vaciar_carrito'),
     path('ver_carrito_ajax/', ver_carrito_ajax, name='ver_carrito_ajax'),
     path('eliminar-producto-carrito/<int:producto_id>/', eliminar_producto_carrito, name='eliminar_producto_carrito'),
 

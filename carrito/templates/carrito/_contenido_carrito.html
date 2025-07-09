@@ -49,12 +49,12 @@
     </form>
   </div>
 </div>
-<form action="{% url 'vaciar_carrito' %}" method="post" class="d-inline">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-outline-danger btn-lg">
-                        <i class="bi bi-trash"></i> Vaciar carrito
-                      </button>
-                    </form>
+<!-- Botón para vaciar el carrito -->
+<a type="button" class="btn btn-outline-danger btn-lg" id="btn-vaciar-carrito">
+  <i class="bi bi-trash"></i> Vaciar carrito
+</a>
+
+
 
 {% else %}
 <div class="flex flex-col items-center justify-center py-8 space-y-2">
@@ -67,43 +67,51 @@
 </div>
 {% endif %}
 
-<script>
+<!-- <script>
 document.addEventListener("DOMContentLoaded", function() {
 
-  // Vaciar el carrito
-  const vaciarCarritoBtn = document.querySelector('.btn-vaciar-carrito');
-  if (vaciarCarritoBtn) {
-    vaciarCarritoBtn.addEventListener('click', function(e) {
-      e.preventDefault(); // Prevenir la acción predeterminada del formulario
+ const offcanvasCarrito = document.getElementById('offcanvasCarrito');
+  
+  if (offcanvasCarrito) {
+    offcanvasCarrito.addEventListener('click', function(e) {
+      // Verificar si el clic fue en el botón de vaciar carrito
+      if (e.target && e.target.id === 'btn-vaciar-carrito') {
+        e.preventDefault(); // Prevenir acción predeterminada del formulario
 
-      fetch("{% url 'vaciar_carrito' %}", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-        },
-        credentials: 'include',  // Asegura que las cookies de sesión se envíen
-      })
-      .then(response => response.json())
-      .then(data => {
-        alert(data.mensaje); // Muestra el mensaje de carrito vacío
+        // Lógica para vaciar el carrito
+        fetch("{% url 'vaciar_carrito' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+          },
+          credentials: 'include',  // Asegura que las cookies de sesión se envíen
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert(data.mensaje); // Muestra el mensaje de carrito vacío
 
-        // Actualiza el contenido del carrito en el modal con el mensaje "Tu carrito está vacío"
-        if (data.mensaje === "Tu carrito está vacío") {
-          document.getElementById('contenedorCarrito').innerHTML = `
-            <div class="text-center py-5">
-              <i class="bi bi-cart-x" style="font-size: 3rem; color: #6c757d;"></i>
-              <h3 class="h4 text-muted mb-3">${data.mensaje}</h3>
-              <a href="{% url 'home' %}" class="btn btn-primary">
-                <i class="bi bi-bag"></i> Descubrir productos
-              </a>
-            </div>
-          `;
-        }
-      })
-      .catch(err => console.error('Error al vaciar el carrito:', err));
+          // Actualiza el contenido del carrito en el modal
+          if (data.mensaje === "Tu carrito está vacío") {
+            document.getElementById('contenedorCarrito').innerHTML = `
+              <div class="text-center py-5">
+                <i class="bi bi-cart-x" style="font-size: 3rem; color: #6c757d;"></i>
+                <h3 class="h4 text-muted mb-3">${data.mensaje}</h3>
+                <a href="{% url 'home' %}" class="btn btn-primary">
+                  <i class="bi bi-bag"></i> Descubrir productos
+                </a>
+              </div>
+            `;
+          }
+        })
+        .catch(err => console.error('Error al vaciar el carrito:', err));
+      }
     });
   }
+
+
+
+
 
   // Eliminar producto del carrito
   const eliminarProductoBtns = document.querySelectorAll('.btn-eliminar-producto');
@@ -143,5 +151,5 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
 });
-</script>
+</script> -->
 
