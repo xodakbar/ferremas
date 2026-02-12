@@ -1,34 +1,241 @@
-<!-- usuarios/templates/home.html -->
 {% load static %}
+{% load humanize %}
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Ferremas - Inicio</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <meta charset="UTF-8" />
+  <title>Ferremas - Inicio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+
+  <!-- CSS personalizado (si tienes) -->
 </head>
-<body>
-    <header>
-        <h1>Ferremas</h1>
-        <p>Tu ferretería de confianza</p>
-    </header>
+<body class="bg-light">
 
-    <nav>
-        <ul>
-            <li><a href="/api/usuarios/">Usuarios</a></li>
-            <li><a href="/api/productos/">Productos</a></li>
-            <li><a href="/admin/">Panel Admin</a></li>
-        </ul>
-    </nav>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark " style="background-color: rgb(86, 109, 50);">
+  <div class="container-fluid">
+    <a class="navbar-brand fs-3 " style="color: rgb(221, 202, 180); text-shadow:
+    -1px -1px 0 black,
+     1px -1px 0 black,
+    -1px  1px 0 black,
+     1px  1px 0 black;" href="/">Ferremas</a>
 
-    <main>
-        <h2>Bienvenido a Ferremas</h2>
-        <p>Gestiona tus productos, usuarios y pedidos desde esta plataforma web.</p>
-    </main>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+            aria-controls="navbarContent" aria-expanded="false" aria-label="Alternar navegación">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-    <footer>
-        <p>&copy; 2025 Ferremas - Todos los derechos reservados</p>
-    </footer>
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <!-- Buscador -->
+
+
+      <!-- Opciones de usuario -->
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+        {% if request.user.is_authenticated %}
+          <li class="nav-item me-3">
+            <span class="nav-link text-white">Hola, {{ request.user.first_name|default:request.user.username }}</span>
+          </li>
+          <li class="nav-item me-2">
+            <form action="{% url 'logout' %}" method="post" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-light">Cerrar sesión</button>
+            </form>
+          </li>
+          {% if request.user.rol == "bodeguero" %}
+            <li class="nav-item me-2">
+              <a href="{% url 'lista-productos-bodega' %}" class="btn btn-info">Bodega</a>
+            </li>
+          {% endif %}
+          <li class="nav-item">
+            <a href="{% url 'ver_carrito' %}" class="btn btn-warning" title="Ver carrito de compras">🛒</a>
+          </li>
+        {% else %}
+          <li class="nav-item me-2">
+            <a href="{% url 'login' %}" class="btn btn-success">Login</a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'registro_html' %}" class="btn btn-primary">Registro</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Carrusel -->
+<div id="carouselPrincipal" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img src="{% static 'images/martillo.png' %}" 
+           class="d-block w-100"
+           alt="Nuevos productos"
+           style="height: 400px; object-fit: contain;" />
+    </div>
+    <div class="carousel-item">
+      <img src="{% static 'images/arena.png' %}" 
+           class="d-block w-100"
+           alt="Ofertas especiales"
+           style="height: 400px; object-fit: contain;" />
+    </div>
+    <div class="carousel-item">
+      <img src="{% static 'images/cemento.png' %}" 
+           class="d-block w-100"
+           alt="Ofertas especiales"
+           style="height: 400px; object-fit: contain;" />
+    </div>
+    <div class="carousel-item">
+      <img src="{% static 'images/destornillador.png' %}" 
+           class="d-block w-100"
+           alt="Ofertas especiales"
+           style="height: 400px; object-fit: contain;" />
+    </div>
+    <div class="carousel-item">
+      <img src="{% static 'images/herramienta_electrica.png' %}" 
+           class="d-block w-100"
+           alt="Ofertas especiales"
+           style="height: 400px; object-fit: contain;" />
+    </div>
+    <div class="carousel-item">
+      <img src="{% static 'images/lijadora.png' %}" 
+           class="d-block w-100"
+           alt="Ofertas especiales"
+           style="height: 400px; object-fit: contain;" />
+    </div>
+    <div class="carousel-item">
+      <img src="{% static 'images/llave.png' %}" 
+           class="d-block w-100"
+           alt="Ofertas especiales"
+           style="height: 400px; object-fit: contain;" />
+    </div>
+    <div class="carousel-item">
+      <img src="{% static 'images/materiales_de_construccion.png' %}" 
+           class="d-block w-100"
+           alt="Ofertas especiales"
+           style="height: 400px; object-fit: contain;" />
+    </div>
+    <div class="carousel-item">
+      <img src="{% static 'images/sierra_electrica.png' %}" 
+           class="d-block w-100"
+           alt="Ofertas especiales"
+           style="height: 400px; object-fit: contain;" />
+    </div>
+    <div class="carousel-item">
+      <img src="{% static 'images/casco.png' %}" 
+           class="d-block w-100"
+           alt="Ofertas especiales"
+           style="height: 400px; object-fit: contain;" />
+    </div>
+    <div class="carousel-item">
+      <img src="{% static 'images/tornillos.png' %}" 
+           class="d-block w-100"
+           alt="Ofertas especiales"
+           style="height: 400px; object-fit: contain;" />
+    </div>
+
+
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselPrincipal" data-bs-slide="prev" aria-label="Anterior">
+    <span class="carousel-control-prev-icon"></span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselPrincipal" data-bs-slide="next" aria-label="Siguiente">
+    <span class="carousel-control-next-icon"></span>
+  </button>
+</div>
+
+<style>
+  body {
+    background-image: url("{% static 'images/madera.jpg' %}");
+    background-size: cover;
+    
+  }
+
+  </style>
+<!-- Sección de Bienvenida -->
+<section class="container text-center py-5">
+  <h1 class="display-1 fw-bold " style="color: rgb(86, 109, 50); text-shadow:
+    -1px -1px 0 white,
+     1px -1px 0 black,
+    -1px  1px 0 black,
+     1px  1px 0 white;">Tu ferretería de confianza</h1>
+  
+  <div class="mt-4 d-flex justify-content-center gap-3">
+    {% if not request.user.is_authenticated %}
+      <a href="{% url 'registro_html' %}" class="btn btn-secondary px-4">Crear cuenta</a>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Sección de Productos -->
+<section class="container py-4">
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for producto in productos %}
+      {% if producto.stock > 0 %}
+        <div class="col">
+          <div class="card h-100 shadow-sm" style="background-color: rgb(86, 109, 50);;">
+            <div class="card-body d-flex flex-column " style="background-color: rgb(86, 109, 50);">
+              {% if producto.imagen %}
+                <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" class="mb-3" style="height: 250px;
+    object-fit: contain; 
+    width: 100%;" />
+              {% else %}
+                <p class="text-muted">No hay imagen disponible</p>
+              {% endif %}
+              <h5 class="card-title" >{{ producto.nombre }}</h5>
+              <p class="text-muted mb-1">Marca: {{ producto.marca.nombre }}</p>
+              <p class="card-text fw-bold mb-3" >${{ producto.precio|floatformat:0|intcomma }}</p>
+                
+                <div class="producto-card">
+  <input type="number" class="cantidad-input" value="1" min="1" style="max-width: 80px;">
+  <button class="btn-agregar-carrito" data-id="{{ producto.id }}" style="background-color: green; color: white;">
+    Agregar al carrito
+  </button>
+   <div class="mensaje-carrito" style="color: green; font-weight: bold; margin-top: 6px; min-height: 20px;"></div>
+
+</div>
+              <p class="text-muted mb-1">Stock: {{ producto.stock }}</p>
+              <p class="text-muted precio-dolares" style="display:none;">
+                ≈ ${{ producto.precio_en_dolares|default:"N/A"|floatformat:2 }} USD
+              </p>
+              <button type="button" class="btn btn-secondary btn-sm btn-toggle-dolar">
+                Mostrar precio en USD
+              </button>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+    
+  </div>
+</section>
+
+
+
+<script src="{% static 'js/carrito.js' %}"></script>
+
+<script>
+  // Funcionalidad para toggle de precio en dólares
+  document.querySelectorAll('.btn-toggle-dolar').forEach(button => {
+    button.addEventListener('click', () => {
+      const precio_en_dolares = button.previousElementSibling;
+      if (!precio_en_dolares) return;
+      if (precio_en_dolares.style.display === 'none') {
+        precio_en_dolares.style.display = 'block';
+        button.textContent = 'Ocultar precio en USD';
+      } else {
+        precio_en_dolares.style.display = 'none';
+        button.textContent = 'Mostrar precio en USD';
+      }
+    });
+  });
+</script>
+<footer class="bg-dark text-white text-center py-5 mt-3">
+  <p class="mb-1">&copy; 2025 Ferremas - Todos los derechos reservados</p>
+</footer>
 </body>
+
 </html>

@@ -6,37 +6,36 @@ from .models import Usuario
 from .serializers import UsuarioSerializer
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+import requests
+from django.contrib.auth import logout
+from django.views.decorators.http import require_POST
+from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
 
 
+class RegistroUsuarioView(APIView):
+    def post(self, request):
+        serializer = UsuarioSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'mensaje': 'Usuario creado'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def register_user(request):
-    if request.method == 'POST':
-        email = request.POST['email']
-        nombre = request.POST['first_name']
-        apellido = request.POST['last_name']
-        password = request.POST['password']
-
-        if Usuario.objects.filter(username=email).exists():
-            return HttpResponse("Ya existe un usuario con este correo.")  # Mensaje simple, puedes redirigir o mejorar esto
-
-        user = Usuario.objects.create_user(
-            username=email,     # 👈 usamos email como username
-            email=email,
-            first_name=nombre,
-            last_name=apellido,
-            password=password,
-            rol='cliente'       # 👈 asignación automática
-        )
-        return redirect('home')
-
+def registro_html(request):
     return render(request, 'usuarios/register.html')
 
 def home(request):
-    return render(request, 'usuarios/home.html')
+    resp = requests.get('http://127.0.0.1:8000/api/productos/')
+    productos = resp.json() if resp.status_code == 200 else []
+
+    return render(request, 'usuarios/home.html', {'productos': productos ,'MEDIA_URL': settings.MEDIA_URL})
 
 
 def login_view(request):
@@ -51,3 +50,11 @@ def login_view(request):
             return render(request, 'usuarios/login.html', {'error': 'Credenciales inválidas'})
     return render(request, 'usuarios/login.html')
 
+
+def acceso_denegado(request):
+    return render(request, 'usuarios/acceso_denegado.html', status=403)
+
+@require_POST
+def logout_view(request):
+    logout(request)
+    return redirect('home')
